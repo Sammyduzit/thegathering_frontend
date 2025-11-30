@@ -76,14 +76,13 @@ export class GlobalStateCleanup {
     if (this.hadFetch) {
       globalThis.fetch = this.originalFetch;
     } else {
-      delete (globalThis as typeof globalThis & { fetch?: unknown }).fetch;
+      delete (globalThis as any).fetch;
     }
 
     if (this.hadDocument) {
       globalThis.document = this.originalDocument;
     } else {
-      delete (globalThis as typeof globalThis & { document?: undefined })
-        .document;
+      delete (globalThis as any).document;
     }
   }
 }
@@ -134,11 +133,11 @@ export function createMockTimers(): {
     setInterval: mockSetInterval,
     clearTimeout: (id) => {
       clearTimeout(id);
-      timers.delete(id);
+      if (id !== undefined) timers.delete(id as any);
     },
     clearInterval: (id) => {
       clearInterval(id);
-      timers.delete(id);
+      if (id !== undefined) timers.delete(id as any);
     },
     timers,
     clearAll: () => {

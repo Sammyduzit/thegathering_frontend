@@ -55,7 +55,7 @@ export default function QuotaDisplay() {
           ? "border-yellow-500/50 bg-yellow-950/30 text-yellow-400"
           : "border-border-aurora bg-aurora-haze/30 text-text-aurora"
       }`}
-      title={`Weekly message quota: ${quota.used}/${quota.weekly_limit} used. Resets on ${new Date(quota.reset_date).toLocaleDateString()}`}
+      title={`Weekly message quota: ${quota.used}/${quota.weekly_limit} used. Resets on ${new Date(quota.next_reset_date).toLocaleDateString()}`}
     >
       <span
         className={`w-1.5 h-1.5 rounded-full ${

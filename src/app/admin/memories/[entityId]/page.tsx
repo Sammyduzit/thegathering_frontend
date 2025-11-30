@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import GlassPanel from "@/components/ui/GlassPanel";
 import { buildRequestContext } from "@/lib/server/request-context";
 import type { AIEntityResponse } from "@/types/ai-entity";
@@ -94,12 +95,12 @@ export default async function EntityMemoriesPage({ params }: Props) {
           <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">
             Memories: {entity.username}
           </h1>
-          <a
+          <Link
             href="/admin/memories"
             className="text-xs uppercase tracking-[0.28em] text-text-soft hover:text-white transition-colors"
           >
             ← Back to entities
-          </a>
+          </Link>
         </div>
         <p className="text-sm text-muted">
           Model: <span className="text-white">{entity.model_name}</span> · Status:{" "}

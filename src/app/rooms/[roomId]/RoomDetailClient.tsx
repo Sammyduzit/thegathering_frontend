@@ -50,7 +50,7 @@ export default function RoomDetailClient({
 
   useEffect(() => {
     apiFetch<UserResponse>("/api/me")
-      .then((user) => setIsAdmin(user.is_admin))
+      .then((user) => setIsAdmin(user.data.is_admin))
       .catch(() => setIsAdmin(false));
   }, []);
 

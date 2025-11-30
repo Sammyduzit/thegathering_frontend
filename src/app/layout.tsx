@@ -71,8 +71,8 @@ function AuroraHeader({ isAdmin }: { isAdmin: boolean }) {
 }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const { user } = await buildRequestContext({ fetchUser: true });
-  const isAdmin = user?.is_admin ?? false;
+  const ctx = await buildRequestContext({ fetchUser: true });
+  const isAdmin = ctx.authenticated && ctx.user?.is_admin ? true : false;
 
   return (
     <html lang="en">
