@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { formatDateTime } from "@/lib/format-date";
 import GlassPanel from "../../components/ui/GlassPanel";
 import { AuroraLinkButton } from "../../components/ui/AuroraButton";
@@ -107,36 +108,43 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
               {conversations.map((conv) => (
                 <tr
                   key={conv.id}
-                  onClick={() => window.location.href = `/conversations/${conv.id}`}
-                  className="border-t border-border-panel hover:bg-surface-deep transition-colors cursor-pointer"
+                  className="border-t border-border-panel hover:bg-surface-deep transition-colors group"
                 >
                   <td className="px-5 py-4 align-top">
-                    <div className="font-medium text-white">
-                      {conv.room_name ? conv.room_name : `Conversation #${conv.id}`}
-                    </div>
-                    <div className="mt-1 text-[0.7rem] uppercase tracking-[0.28em] text-text-soft">
-                      {conv.type}
-                      {conv.room_id !== null && <span className="ml-2">· Room #{conv.room_id}</span>}
-                      <span className="ml-2">· {conv.participant_count} souls</span>
-                    </div>
+                    <Link href={`/conversations/${conv.id}`} className="block">
+                      <div className="font-medium text-white group-hover:text-text-aurora transition-colors">
+                        {conv.room_name ? conv.room_name : `Conversation #${conv.id}`}
+                      </div>
+                      <div className="mt-1 text-[0.7rem] uppercase tracking-[0.28em] text-text-soft">
+                        {conv.type}
+                        {conv.room_id !== null && <span className="ml-2">· Room #{conv.room_id}</span>}
+                        <span className="ml-2">· {conv.participant_count} souls</span>
+                      </div>
+                    </Link>
                   </td>
                   <td className="px-5 py-4 align-top text-sm text-muted">
-                    {conv.participants.length > 0 ? conv.participants.join(", ") : "—"}
+                    <Link href={`/conversations/${conv.id}`} className="block">
+                      {conv.participants.length > 0 ? conv.participants.join(", ") : "—"}
+                    </Link>
                   </td>
                   <td className="px-5 py-4 align-top text-xs text-muted">
-                    {conv.latest_message_preview && (
-                      <span className="block text-text-aurora italic">
-                        &ldquo;{conv.latest_message_preview}&rdquo;
+                    <Link href={`/conversations/${conv.id}`} className="block">
+                      {conv.latest_message_preview && (
+                        <span className="block text-text-aurora italic">
+                          &ldquo;{conv.latest_message_preview}&rdquo;
+                        </span>
+                      )}
+                      <span className="block mt-1 text-text-subtle">
+                        {conv.latest_message_at
+                          ? formatDateTime(conv.latest_message_at)
+                          : "No messages yet."}
                       </span>
-                    )}
-                    <span className="block mt-1 text-text-subtle">
-                      {conv.latest_message_at
-                        ? formatDateTime(conv.latest_message_at)
-                        : "No messages yet."}
-                    </span>
+                    </Link>
                   </td>
                   <td className="px-5 py-4 align-top text-xs text-muted">
-                    {formatDateTime(conv.created_at)}
+                    <Link href={`/conversations/${conv.id}`} className="block">
+                      {formatDateTime(conv.created_at)}
+                    </Link>
                   </td>
                 </tr>
               ))}
