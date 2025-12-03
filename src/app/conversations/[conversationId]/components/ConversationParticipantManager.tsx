@@ -1,3 +1,5 @@
+"use client";
+
 import { AuroraInput } from "@/components/ui/AuroraInput";
 import { AuroraButton } from "@/components/ui/AuroraButton";
 import type { ConversationParticipant } from "@/types/conversation";

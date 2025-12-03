@@ -1,3 +1,5 @@
+"use client";
+
 import { formatDateTime } from "@/lib/format-date";
 import GlassPanel from "@/components/ui/GlassPanel";
 import { AuroraButton, AuroraLinkButton } from "@/components/ui/AuroraButton";

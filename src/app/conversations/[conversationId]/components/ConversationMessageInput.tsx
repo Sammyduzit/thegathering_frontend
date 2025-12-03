@@ -1,3 +1,5 @@
+"use client";
+
 import { AuroraButton } from "@/components/ui/AuroraButton";
 import { AuroraTextarea } from "@/components/ui/AuroraInput";
 
