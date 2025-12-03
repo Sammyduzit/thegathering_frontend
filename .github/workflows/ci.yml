@@ -31,11 +31,8 @@ jobs:
     - name: "🔎 TypeScript Type Check"
       run: npx tsc --noEmit
 
-    - name: "🧪 Run Unit Tests"
-      run: npm run test:unit
-
-    - name: "🧪 Run Integration Tests"
-      run: npm run test:integration
+    - name: "🧪 Run All Tests"
+      run: npm test
 
     - name: "🏗️ Production Build Test"
       run: npm run build
@@ -92,8 +89,7 @@ jobs:
         if [ "${{ needs.test.result }}" == "success" ]; then
           echo "✅ Linting: Passed"
           echo "✅ Type Check: Passed"
-          echo "✅ Unit Tests: Passed"
-          echo "✅ Integration Tests: Passed"
+          echo "✅ Tests: Passed"
           echo "✅ Build: Passed"
         else
           echo "❌ Tests: Failed"

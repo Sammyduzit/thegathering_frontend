@@ -7,10 +7,10 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "test": "tsx --test tests/**/*.test.{ts,tsx}",
-    "test:unit": "tsx --test tests/unit/**/*.test.{ts,tsx}",
-    "test:integration": "tsx --test tests/lib/**/*.test.{ts,tsx}",
-    "test:watch": "tsx --test --watch tests/**/*.test.{ts,tsx}"
+    "test": "tsx --test 'tests/**/*.test.{ts,tsx}'",
+    "test:unit": "tsx --test 'tests/unit/**/*.test.{ts,tsx}'",
+    "test:integration": "tsx --test 'tests/integration/**/*.test.{ts,tsx}' 'tests/lib/**/*.test.{ts,tsx}'",
+    "test:watch": "tsx --test --watch 'tests/**/*.test.{ts,tsx}'"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.14",
