@@ -17,7 +17,7 @@ afterEach(() => {
   } else {
     process.env.BACKEND_URL = originalBackendUrl;
   }
-  delete (globalThis as typeof globalThis & { fetch?: typeof fetch }).fetch;
+  delete (globalThis as Record<string, unknown>).fetch;
 });
 
 test("proxyBackendRequest forwards GET requests with cookies", async () => {

@@ -30,7 +30,7 @@ test("Room Workflow - complete message lifecycle", () => {
   const message1 = createMockRoomMessage({
     id: 1,
     content: "Hello!",
-    username: "alice",
+    sender_username: "alice",
   });
 
   const result1 = applySentRoomMessage(messages, pagination, message1, 20);
@@ -45,7 +45,7 @@ test("Room Workflow - complete message lifecycle", () => {
   const message2 = createMockRoomMessage({
     id: 2,
     content: "Hi Alice!",
-    username: "bob",
+    sender_username: "bob",
   });
 
   const result2 = applySentRoomMessage(messages, pagination, message2, 20);

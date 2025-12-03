@@ -20,10 +20,10 @@ test.after(() => {
   if (ORIGINAL_FETCH) {
     globalThis.fetch = ORIGINAL_FETCH;
   } else {
-    delete (globalThis as typeof globalThis & { fetch?: unknown }).fetch;
+    delete (globalThis as Record<string, unknown>).fetch;
   }
   if (ORIGINAL_DOCUMENT === undefined) {
-    delete (globalThis as typeof globalThis & { document?: undefined }).document;
+    delete (globalThis as Record<string, unknown>).document;
   } else {
     globalThis.document = ORIGINAL_DOCUMENT;
   }
@@ -69,9 +69,10 @@ test("apiFetch attaches CSRF token for mutating requests", async () => {
   });
 
   assert.deepEqual(data, { created: true });
-  assert.ok(lastHeaders);
-  assert.equal(lastHeaders?.get("x-csrf-token"), "secureToken");
-  assert.equal(lastHeaders?.get("content-type"), "application/json");
+  assert.ok(lastHeaders, "lastHeaders should be set");
+  const headers = lastHeaders as Headers;
+  assert.equal(headers.get("x-csrf-token"), "secureToken");
+  assert.equal(headers.get("content-type"), "application/json");
 });
 
 test("apiFetch rejects when CSRF token is missing for mutating requests", async () => {
