@@ -17,7 +17,7 @@ interface ConversationErrorBoundaryProps {
  */
 export function ConversationErrorBoundary({
   children,
-  conversationId,
+  conversationId: _conversationId,
 }: ConversationErrorBoundaryProps) {
   const router = useRouter();
 

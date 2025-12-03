@@ -87,8 +87,8 @@ test("Room Workflow - complete message lifecycle", () => {
 test("Room Workflow - duplicate message handling", () => {
   const message1 = createMockRoomMessage({ id: 1, content: "Test" });
 
-  let messages = [message1];
-  let pagination = createMockPaginationState({
+  const messages = [message1];
+  const pagination = createMockPaginationState({
     page: 1,
     pageSize: 20,
     total: 1,
@@ -180,11 +180,11 @@ test("Room Workflow - pagination with multiple loads", () => {
 
 test("Room Workflow - real-time updates during pagination", () => {
   // User is viewing older messages (page 2)
-  let messages = Array.from({ length: 20 }, (_, i) =>
+  const messages = Array.from({ length: 20 }, (_, i) =>
     createMockRoomMessage({ id: i + 21, content: `Old ${i + 21}` })
   );
 
-  let pagination = createMockPaginationState({
+  const pagination = createMockPaginationState({
     page: 2,
     pageSize: 20,
     total: 100,

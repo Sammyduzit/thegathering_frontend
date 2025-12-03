@@ -17,7 +17,7 @@ interface RoomErrorBoundaryProps {
  */
 export function RoomErrorBoundary({
   children,
-  roomId,
+  roomId: _roomId,
 }: RoomErrorBoundaryProps) {
   const router = useRouter();
 

@@ -5,7 +5,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { apiFetch, ApiError, UnauthorizedError, getErrorMessage } from "../../src/lib/client-api";
+import { apiFetch, getErrorMessage } from "../../src/lib/client-api";
 import { GlobalStateCleanup, createFetchMock, mockDocumentCookie } from "../setup/test-utils";
 
 test("API Workflow - successful GET request with auth", async () => {
@@ -13,7 +13,7 @@ test("API Workflow - successful GET request with auth", async () => {
   const { mock, calls } = createFetchMock();
   globalThis.fetch = mock;
 
-  const { data } = await apiFetch("/api/test");
+  await apiFetch("/api/test");
 
   assert.equal(calls.length, 1);
   assert.equal(calls[0].init.method, "GET");
@@ -52,7 +52,7 @@ test("API Workflow - 401 triggers refresh and retry", async () => {
   mockDocumentCookie("tg_csrf=token");
 
   let callCount = 0;
-  globalThis.fetch = (async (input, init) => {
+  globalThis.fetch = (async (input, _init) => {
     callCount++;
 
     // First call to actual endpoint returns 401
@@ -95,7 +95,7 @@ test("API Workflow - 401 with failed refresh throws UnauthorizedError", async ()
   mockDocumentCookie("tg_csrf=token");
 
   let callCount = 0;
-  globalThis.fetch = (async (input, init) => {
+  globalThis.fetch = (async (input, _init) => {
     callCount++;
 
     // First call returns 401
