@@ -26,7 +26,7 @@ export default function LoginPage() {
         retryOn401: false,
         expectJson: false,
       });
-      router.push("/me");
+      router.push("/rooms");
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

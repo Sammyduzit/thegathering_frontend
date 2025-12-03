@@ -1,6 +1,6 @@
 import { formatDateTime } from "@/lib/format-date";
 import GlassPanel from "@/components/ui/GlassPanel";
-import { AuroraButton } from "@/components/ui/AuroraButton";
+import { AuroraButton, AuroraLinkButton } from "@/components/ui/AuroraButton";
 
 type ConversationHeaderProps = {
   id: number;
@@ -36,9 +36,20 @@ export function ConversationHeader({
           <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">
             {roomName ?? `Conversation #${id}`}
           </h1>
-          <p className="mt-3 text-muted leading-relaxed">
-            Type: {type}. Room ID: {roomId ?? "–"}. Created {formatDateTime(createdAt)}.
-          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <p className="text-muted leading-relaxed">
+              Type: {type}. Room ID: {roomId ?? "–"}. Created {formatDateTime(createdAt)}.
+            </p>
+            {roomId && (
+              <AuroraLinkButton
+                href={`/rooms/${roomId}`}
+                variant="ghost"
+                className="text-[0.65rem]"
+              >
+                Go to Room
+              </AuroraLinkButton>
+            )}
+          </div>
           <p className="mt-2 text-[0.68rem] uppercase tracking-[0.3em] text-text-soft">
             Participants: {participantCount} · Messages: {messageCount}
           </p>
@@ -59,11 +70,11 @@ export function ConversationHeader({
             className="text-[0.6rem]"
             disabled={isArchiving || !canArchive}
           >
-            {isArchiving ? "Updating..." : isActive ? "Archive conversation" : "Restore conversation"}
+            {isArchiving ? "Deleting..." : isActive ? "Delete conversation" : "Restore conversation"}
           </AuroraButton>
           {!canArchive && (
             <span className="text-[0.6rem] text-text-faint">
-              Only participants can archive or restore this conversation.
+              Only participants can delete or restore this conversation.
             </span>
           )}
         </div>

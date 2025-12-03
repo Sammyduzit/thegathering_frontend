@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatDateTime } from "@/lib/format-date";
 import GlassPanel from "../../components/ui/GlassPanel";
 import { AuroraLinkButton } from "../../components/ui/AuroraButton";
@@ -102,14 +101,14 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
                 <th className="px-5 py-4 text-left font-semibold">Participants</th>
                 <th className="px-5 py-4 text-left font-semibold">Latest activity</th>
                 <th className="px-5 py-4 text-left font-semibold">Created</th>
-                <th className="px-5 py-4 text-right font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {conversations.map((conv) => (
                 <tr
                   key={conv.id}
-                  className="border-t border-border-panel hover:bg-surface-deep transition-colors"
+                  onClick={() => window.location.href = `/conversations/${conv.id}`}
+                  className="border-t border-border-panel hover:bg-surface-deep transition-colors cursor-pointer"
                 >
                   <td className="px-5 py-4 align-top">
                     <div className="font-medium text-white">
@@ -139,20 +138,12 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
                   <td className="px-5 py-4 align-top text-xs text-muted">
                     {formatDateTime(conv.created_at)}
                   </td>
-                  <td className="px-5 py-4 align-top text-right">
-                    <Link
-                      href={`/conversations/${conv.id}`}
-                      className="link-aurora text-[0.65rem] uppercase tracking-[0.32em]"
-                    >
-                      View
-                    </Link>
-                  </td>
                 </tr>
               ))}
               {conversations.length === 0 && (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={4}
                     className="px-5 py-8 text-center text-sm text-text-soft uppercase tracking-[0.28em]"
                   >
                     No conversations available.

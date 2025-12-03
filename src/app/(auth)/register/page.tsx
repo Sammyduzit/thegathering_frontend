@@ -27,7 +27,7 @@ export default function RegisterPage() {
         retryOn401: false,
         expectJson: false,
       });
-      router.push("/login");
+      router.push("/me");
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

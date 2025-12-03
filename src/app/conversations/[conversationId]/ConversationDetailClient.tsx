@@ -125,6 +125,7 @@ export default function ConversationDetailClient({
       <GlassPanel as="section" className="rounded-3xl px-6 md:px-8 py-6 space-y-6">
         <ConversationMessageList
           messages={messagesHook.messages}
+          participants={participantsHook.participants}
           pagination={messagesHook.pagination}
           isPolling={messagesHook.isPolling}
           isLoadingMore={messagesHook.isLoadingMore}

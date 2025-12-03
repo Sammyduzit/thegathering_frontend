@@ -1,8 +1,12 @@
 import Link from "next/link";
 import GlassPanel from "../components/ui/GlassPanel";
 import { AuroraLinkButton } from "../components/ui/AuroraButton";
+import { buildRequestContext } from "@/lib/server/request-context";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const ctx = await buildRequestContext({ fetchUser: true });
+  const isAuthenticated = ctx.authenticated;
+
   return (
     <GlassPanel className="max-w-4xl mx-auto text-center px-8 py-14 md:py-16">
       <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border-aurora bg-surface-soft uppercase tracking-[0.32em] text-[0.7rem] text-muted">
@@ -17,9 +21,11 @@ export default function HomePage() {
         memories like constellations, ready to shimmer when you call upon them.
       </p>
       <div className="mt-10 flex flex-col md:flex-row items-center justify-center gap-4">
-        <AuroraLinkButton href="/login" className="text-sm uppercase tracking-[0.28em]">
-          Enter the Gathering
-        </AuroraLinkButton>
+        {!isAuthenticated && (
+          <AuroraLinkButton href="/login" className="text-sm uppercase tracking-[0.28em]">
+            Enter the Gathering
+          </AuroraLinkButton>
+        )}
         <Link href="/rooms" className="link-aurora text-xs uppercase tracking-[0.32em]">
           Browse the clearings
         </Link>

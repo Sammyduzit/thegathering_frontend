@@ -29,7 +29,7 @@ export default function JoinRoomClient({ room, currentRoomId }: Props) {
         method: "POST",
         expectJson: false,
       });
-      router.refresh();
+      router.push(`/rooms/${room.id}`);
     } catch (err) {
       setError(getErrorMessage(err));
     } finally {

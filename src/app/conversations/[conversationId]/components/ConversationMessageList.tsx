@@ -1,9 +1,11 @@
+import Image from "next/image";
 import { formatDateTime } from "@/lib/format-date";
 import { AuroraButton } from "@/components/ui/AuroraButton";
-import type { ConversationMessage } from "@/types/conversation";
+import type { ConversationMessage, ConversationParticipant } from "@/types/conversation";
 
 type ConversationMessageListProps = {
   messages: ConversationMessage[];
+  participants: ConversationParticipant[];
   pagination: {
     page: number;
     pageSize: number;
@@ -18,11 +20,18 @@ type ConversationMessageListProps = {
 
 export function ConversationMessageList({
   messages,
+  participants,
   pagination,
   isPolling,
   isLoadingMore,
   onLoadOlder,
 }: ConversationMessageListProps) {
+  const getParticipantAvatar = (username: string | null) => {
+    if (!username) return null;
+    const participant = participants.find(p => p.username === username);
+    return participant?.avatar_url || null;
+  };
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -42,22 +51,36 @@ export function ConversationMessageList({
         {messages.length === 0 ? (
           <p className="text-sm text-muted">No messages yet.</p>
         ) : (
-          [...messages].reverse().map((message) => (
-            <article
-              key={message.id}
-              className="rounded-2xl border border-border-panel bg-surface-deep px-4 py-3"
-            >
-              <header className="flex flex-wrap items-center justify-between gap-2 text-xs text-text-subtle">
-                <span className="font-semibold text-white">
-                  {message.sender_username ?? "Unknown sender"}
-                </span>
-                <time className="text-text-faint" dateTime={message.sent_at}>
-                  {formatDateTime(message.sent_at)}
-                </time>
-              </header>
-              <p className="mt-2 whitespace-pre-wrap text-sm text-muted">{message.content}</p>
-            </article>
-          ))
+          [...messages].reverse().map((message) => {
+            const avatarUrl = getParticipantAvatar(message.sender_username);
+            return (
+              <article
+                key={message.id}
+                className="rounded-2xl border border-border-panel bg-surface-deep px-4 py-3"
+              >
+                <header className="flex items-center gap-3">
+                  {avatarUrl && (
+                    <Image
+                      src={avatarUrl}
+                      alt={message.sender_username || "User"}
+                      width={32}
+                      height={32}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  )}
+                  <div className="flex-1 flex flex-wrap items-center justify-between gap-2 text-xs text-text-subtle">
+                    <span className="font-semibold text-white">
+                      {message.sender_username ?? "Unknown sender"}
+                    </span>
+                    <time className="text-text-faint" dateTime={message.sent_at}>
+                      {formatDateTime(message.sent_at)}
+                    </time>
+                  </div>
+                </header>
+                <p className="mt-2 whitespace-pre-wrap text-sm text-muted ml-11">{message.content}</p>
+              </article>
+            );
+          })
         )}
       </div>
 
