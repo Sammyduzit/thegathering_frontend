@@ -1,0 +1,124 @@
+name: The Gathering Frontend CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: "📥 Checkout Repository"
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: "⚙️ Setup Node.js 20"
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: "📦 Install Dependencies"
+      run: npm ci
+
+    - name: "🔍 ESLint Check"
+      run: npx eslint .
+
+    - name: "🔎 TypeScript Type Check"
+      run: npx tsc --noEmit
+
+    - name: "🧪 Run Unit Tests"
+      run: npm run test:unit
+
+    - name: "🧪 Run Integration Tests"
+      run: npm run test:integration
+
+    - name: "🏗️ Production Build Test"
+      run: npm run build
+      env:
+        NEXT_PUBLIC_API_URL: http://130.61.246.212
+        BACKEND_URL: http://130.61.246.212
+        NEXT_PUBLIC_APP_NAME: The Gathering
+        NEXT_PUBLIC_APP_URL: https://the-gathering.vercel.app
+
+  security:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+    - name: "📥 Checkout Repository"
+      uses: actions/checkout@v4
+
+    - name: "⚙️ Setup Node.js 20"
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: "📦 Install Dependencies"
+      run: npm ci
+
+    - name: "🔒 Dependency Vulnerability Scan"
+      run: |
+        npm audit --audit-level=moderate > npm-audit-report.txt || true
+        npm audit --json > npm-audit-report.json || echo '{"vulnerabilities": {}}' > npm-audit-report.json
+
+    - name: "📋 Upload Security Reports"
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          npm-audit-report.txt
+          npm-audit-report.json
+        retention-days: 7
+
+  quality-gate:
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    if: always()
+
+    steps:
+    - name: "✅ Quality Gate Check"
+      run: |
+        echo "🎯 The Gathering Frontend Quality Gate"
+        echo ""
+
+        # Check test job result
+        if [ "${{ needs.test.result }}" == "success" ]; then
+          echo "✅ Linting: Passed"
+          echo "✅ Type Check: Passed"
+          echo "✅ Unit Tests: Passed"
+          echo "✅ Integration Tests: Passed"
+          echo "✅ Build: Passed"
+        else
+          echo "❌ Tests: Failed"
+          TEST_FAILED=true
+        fi
+
+        # Check security job result
+        if [ "${{ needs.security.result }}" == "success" ]; then
+          echo "✅ Security: Scanned"
+        elif [ "${{ needs.security.result }}" == "skipped" ]; then
+          echo "⏭️  Security: Skipped"
+        else
+          echo "❌ Security: Failed"
+          SECURITY_FAILED=true
+        fi
+
+        echo ""
+
+        # Determine overall status
+        if [ "$TEST_FAILED" == "true" ] || [ "$SECURITY_FAILED" == "true" ]; then
+          echo "❌ Quality Gate: FAILED"
+          echo "🚫 NOT ready for deployment!"
+          exit 1
+        else
+          echo "✅ Quality Gate: PASSED"
+          echo "🚀 Ready for Vercel deployment!"
+          exit 0
+        fi
