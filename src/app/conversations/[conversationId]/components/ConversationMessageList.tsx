@@ -32,6 +32,15 @@ export function ConversationMessageList({
     return participant?.avatar_url || null;
   };
 
+  // DiceBear returns SVGs by default; swap to PNG to avoid Next/Image SVG restrictions.
+  const normalizeAvatarUrl = (url: string | null) => {
+    if (!url) return null;
+    if (url.includes("api.dicebear.com") && url.includes("/svg")) {
+      return url.replace("/svg", "/png");
+    }
+    return url;
+  };
+
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -52,7 +61,7 @@ export function ConversationMessageList({
           <p className="text-sm text-muted">No messages yet.</p>
         ) : (
           [...messages].reverse().map((message) => {
-            const avatarUrl = getParticipantAvatar(message.sender_username);
+            const avatarUrl = normalizeAvatarUrl(getParticipantAvatar(message.sender_username));
             return (
               <article
                 key={message.id}

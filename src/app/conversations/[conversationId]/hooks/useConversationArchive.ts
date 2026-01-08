@@ -34,8 +34,8 @@ export function useConversationArchive({
           method: "DELETE",
           expectJson: false,
         });
-        // Redirect to conversations list after deleting with success message
-        router.push('/conversations/?message=Conversation+deleted+successfully');
+        // Redirect to conversations list after closing with success message
+        router.push('/conversations/?message=Conversation+closed+successfully');
       } else {
         const { data } = await apiFetch<{ message?: string }>(`/api/conversations/${conversationId}`, {
           method: "PATCH",

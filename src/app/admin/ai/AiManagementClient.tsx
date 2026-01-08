@@ -36,6 +36,7 @@ type FormState = {
   response_probability: string;
   cooldown_seconds: string;
   config: string;
+  avatar_url: string;
   status: "online" | "offline";
   current_room_id: string;
 };
@@ -57,6 +58,7 @@ function entityToFormState(entity: AIEntityResponse): FormState {
     response_probability: entity.response_probability !== null ? String(entity.response_probability) : "",
     cooldown_seconds: entity.cooldown_seconds !== null ? String(entity.cooldown_seconds) : "",
     config: entity.config ? JSON.stringify(entity.config, null, 2) : "",
+    avatar_url: entity.avatar_url ?? "",
     status: entity.status,
     current_room_id: entity.current_room_id !== null ? String(entity.current_room_id) : "",
   };
@@ -75,6 +77,7 @@ function emptyFormState(): FormState {
     response_probability: "",
     cooldown_seconds: "",
     config: "",
+    avatar_url: "",
     status: "offline",
     current_room_id: "",
   };
@@ -190,6 +193,7 @@ export default function AiManagementClient({ initialEntities }: Props) {
         conversation_response_strategy: createForm.conversation_response_strategy,
         cooldown_seconds: cooldownSeconds ?? undefined,
         config: parseConfig(createForm.config),
+        avatar_url: createForm.avatar_url.trim() || undefined,
       };
 
       if (!payload.username || !payload.system_prompt || !payload.model_name) {
@@ -244,6 +248,7 @@ export default function AiManagementClient({ initialEntities }: Props) {
         response_probability: responseProbability,
         cooldown_seconds: cooldownSeconds,
         config: parseConfig(editForm.config),
+        avatar_url: editForm.avatar_url.trim() || null,
         status: editForm.status,
         ...(roomIdChanged ? { current_room_id: nextRoomId } : {}),
       };
@@ -437,6 +442,17 @@ export default function AiManagementClient({ initialEntities }: Props) {
                 onChange={(e) => setCreateForm((prev) => ({ ...prev, config: e.target.value }))}
               />
             </div>
+            <div className="md:col-span-2">
+              <AuroraInput
+                label="Avatar URL (optional)"
+                value={createForm.avatar_url}
+                onChange={(e) => setCreateForm((prev) => ({ ...prev, avatar_url: e.target.value }))}
+                placeholder="https://... (leave empty for auto-generated DiceBear avatar)"
+              />
+              <p className="mt-2 text-xs text-text-faint">
+                Leave empty to auto-generate a DiceBear &quot;bottts&quot; style avatar based on username
+              </p>
+            </div>
           </div>
           <div className="flex justify-end gap-3">
             <AuroraButton
@@ -476,17 +492,31 @@ export default function AiManagementClient({ initialEntities }: Props) {
               {entities.map((entity) => (
                 <tr key={entity.id} className="border-t border-border-panel hover:bg-surface-deep transition-colors">
                   <td className="px-5 py-4">
-                    <div className="font-medium text-white flex items-center gap-2">
-                      {entity.username}
-                      {!entity.is_active && (
-                        <span className="rounded-full border border-border-rose px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.3em] text-text-rose">
-                          Archived
-                        </span>
+                    <div className="flex items-center gap-3">
+                      {entity.avatar_url && (
+                        <img
+                          src={entity.avatar_url}
+                          alt={`${entity.username}'s avatar`}
+                          className="w-10 h-10 rounded-full border border-border-panel flex-shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(entity.username)}&background=1a1f35&color=8b9dc3&size=40`;
+                          }}
+                        />
                       )}
+                      <div className="min-w-0">
+                        <div className="font-medium text-white flex items-center gap-2">
+                          {entity.username}
+                          {!entity.is_active && (
+                            <span className="rounded-full border border-border-rose px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.3em] text-text-rose">
+                              Archived
+                            </span>
+                          )}
+                        </div>
+                        {entity.description && (
+                          <p className="mt-1 text-xs text-text-faint">{entity.description}</p>
+                        )}
+                      </div>
                     </div>
-                    {entity.description && (
-                      <p className="mt-1 text-xs text-text-faint">{entity.description}</p>
-                    )}
                   </td>
                   <td className="px-5 py-4">
                     <span
@@ -700,6 +730,17 @@ export default function AiManagementClient({ initialEntities }: Props) {
                 value={editForm.config}
                 onChange={(e) => setEditForm((prev) => prev ? { ...prev, config: e.target.value } : prev)}
               />
+            </div>
+            <div className="md:col-span-2">
+              <AuroraInput
+                label="Avatar URL (optional)"
+                value={editForm.avatar_url}
+                onChange={(e) => setEditForm((prev) => prev ? { ...prev, avatar_url: e.target.value } : prev)}
+                placeholder="https://... (leave empty for auto-generated DiceBear avatar)"
+              />
+              <p className="mt-2 text-xs text-text-faint">
+                Leave empty to auto-generate a DiceBear &quot;bottts&quot; style avatar based on username
+              </p>
             </div>
           </div>
 

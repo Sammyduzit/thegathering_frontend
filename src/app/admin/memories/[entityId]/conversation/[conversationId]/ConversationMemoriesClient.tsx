@@ -228,13 +228,53 @@ export default function ConversationMemoriesClient({
                   {/* Chunk info */}
                   <div className="flex items-center gap-2">
                     <span className="px-2 py-1 rounded-full bg-panel-hover border border-border-panel text-[0.65rem] uppercase tracking-[0.28em] text-text-soft font-semibold">
-                      Chunk {chunkIndex !== null ? chunkIndex : "?"}{totalChunks !== null ? ` / ${totalChunks}` : ""}
+                      Chunk {chunkIndex !== null ? chunkIndex + 1 : "?"}{totalChunks !== null ? ` / ${totalChunks}` : ""}
                     </span>
                     <span className="text-xs text-text-faint">ID: {memory.id}</span>
                   </div>
 
                   {/* Summary */}
                   <p className="text-sm text-white font-medium">{memory.summary}</p>
+
+                  {/* Memory Content */}
+                  <div className="mt-3 p-3 rounded-lg bg-panel-hover border border-border-panel">
+                    {(() => {
+                      const content = memory.memory_content as Record<string, unknown>;
+                      const metadata = memory.memory_metadata as { type?: string } | null;
+
+                      // Fact-based LTM (automatically created during conversation archive)
+                      if (metadata?.type === "long_term" && content.fact && typeof content.fact === "object") {
+                        const fact = content.fact as {
+                          text: string;
+                          theme: string;
+                          participants: string[];
+                          importance: number;
+                        };
+                        return (
+                          <div className="space-y-2 text-xs">
+                            <p className="text-white"><strong>Fact:</strong> {fact.text}</p>
+                            <p className="text-muted">Theme: {fact.theme}</p>
+                            <p className="text-muted">Participants: {fact.participants.join(", ")}</p>
+                            {content.message_range && (
+                              <p className="text-muted">Message Range: {String(content.message_range)}</p>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      // Text-based LTM (manually created)
+                      if ((metadata?.type === "long_term" || metadata?.type === "personality") && content.full_text && typeof content.full_text === "string") {
+                        return (
+                          <pre className="text-xs text-muted whitespace-pre-wrap font-mono">
+                            {content.full_text}
+                          </pre>
+                        );
+                      }
+
+                      // Fallback (should not occur)
+                      return <p className="text-xs text-text-faint">Content not available</p>;
+                    })()}
+                  </div>
 
                   {/* Keywords */}
                   {memory.keywords.length > 0 && (

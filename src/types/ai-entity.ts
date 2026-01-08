@@ -41,6 +41,7 @@ export type AIEntityResponse = {
   response_probability: number | null; // 0.0-1.0, nur relevant bei room_probabilistic
   cooldown_seconds: number | null; // 0-3600 oder null
   config: Record<string, unknown> | null;
+  avatar_url: string | null; // Auto-generated (DiceBear "bottts") or custom
   is_active: boolean;
   status: AIEntityStatus;
   current_room_id: number | null;
@@ -65,6 +66,7 @@ export type AIEntityCreate = {
   response_probability?: number | null;
   cooldown_seconds?: number | null;
   config?: Record<string, unknown> | null;
+  avatar_url?: string | null; // Optional override, else auto-generated
 };
 
 /**
@@ -74,6 +76,7 @@ export type AIEntityCreate = {
 export type AIEntityUpdate = AIEntityCreate & {
   status?: AIEntityStatus; // Update only
   current_room_id?: number | null; // Update only (room assignment)
+  avatar_url?: string | null; // Optional override
 };
 
 /**

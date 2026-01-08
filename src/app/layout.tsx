@@ -10,6 +10,8 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import { buildRequestContext } from "@/lib/server/request-context";
 import type { ReactNode } from "react";
 
+export const dynamic = 'force-dynamic';
+
 const spectral = Spectral({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],

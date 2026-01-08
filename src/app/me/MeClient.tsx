@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import { apiFetch } from "@/lib/client-api";
 import { getErrorMessage } from "@/types/api-error";
-import type { UserQuotaResponse, UserResponse } from "@/types/user";
+import type { UserResponse } from "@/types/user";
 import GlassPanel from "@/components/ui/GlassPanel";
 import { AuroraButton } from "@/components/ui/AuroraButton";
 import { AuroraInput } from "@/components/ui/AuroraInput";
@@ -12,11 +12,10 @@ import Image from "next/image";
 
 type Props = {
   initialProfile: UserResponse;
-  initialQuota: UserQuotaResponse | null;
   supportedLanguages: string[];
 };
 
-export default function MeClient({ initialProfile, initialQuota, supportedLanguages }: Props) {
+export default function MeClient({ initialProfile, supportedLanguages }: Props) {
   const [profile, setProfile] = useState<UserResponse>(initialProfile);
   const [username, setUsername] = useState(initialProfile.username);
   const [preferredLanguage, setPreferredLanguage] = useState(initialProfile.preferred_language ?? "");
@@ -26,19 +25,17 @@ export default function MeClient({ initialProfile, initialQuota, supportedLangua
 
   const isAdmin = profile.is_admin;
 
-  const quota = initialQuota;
-  const unlimitedQuota = quota?.weekly_limit === -1;
-  const showQuotaProgress = Boolean(quota && quota.weekly_limit > 0);
-  const rawQuotaPercentage = quota?.percentage_used ?? 0;
+  // Quota-Daten direkt aus UserResponse nutzen
+  const unlimitedQuota = profile.weekly_message_limit === -1;
+  const showQuotaProgress = profile.weekly_message_limit > 0;
+  const rawQuotaPercentage = profile.weekly_message_limit > 0
+    ? (profile.weekly_message_count / profile.weekly_message_limit) * 100
+    : 0;
   const quotaPercentage = showQuotaProgress ? Math.min(rawQuotaPercentage, 100) : 0;
-  const quotaLabel = !quota
-    ? "N/A"
-    : unlimitedQuota
-    ? `${quota.used} / Unlimited`
-    : `${quota.used} / ${quota.weekly_limit}`;
-  const quotaHelperText = !quota
-    ? "Quota information unavailable"
-    : unlimitedQuota
+  const quotaLabel = unlimitedQuota
+    ? `${profile.weekly_message_count} / Unlimited`
+    : `${profile.weekly_message_count} / ${profile.weekly_message_limit}`;
+  const quotaHelperText = unlimitedQuota
     ? "You have unlimited weekly messages"
     : quotaPercentage >= 100
     ? "You have reached your weekly limit"
@@ -47,21 +44,19 @@ export default function MeClient({ initialProfile, initialQuota, supportedLangua
     : quotaPercentage > 0
     ? `${(100 - quotaPercentage).toFixed(0)}% of your quota remaining`
     : "No messages sent yet";
+
   let resetDate = "Not available";
-  if (quota) {
-    if (unlimitedQuota) {
-      resetDate = "Not required";
-    } else {
-      const resetSource = quota.next_reset_date ?? quota.last_reset_date;
-      if (resetSource) {
-        resetDate = new Date(resetSource).toLocaleDateString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        });
-      }
-    }
+  if (unlimitedQuota) {
+    resetDate = "Not required";
+  } else if (profile.weekly_reset_date) {
+    const nextReset = new Date(profile.weekly_reset_date);
+    nextReset.setDate(nextReset.getDate() + 7); // Add 7 days for next reset
+    resetDate = nextReset.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
   }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {

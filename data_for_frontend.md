@@ -268,7 +268,7 @@ Zusätzliche Felder:
     {
       "id": 2,
       "username": "Bot Beta",
-      "avatar_url": null,
+      "avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=Bot%20Beta",
       "status": "online",
       "is_ai": true,
       "last_active": null
@@ -439,7 +439,7 @@ _Known quirks:_ Router-Responses erwarten `count` bzw. `status`. RoomService lie
     {
       "id": 4,
       "username": "Sophia",
-      "avatar_url": null,
+      "avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=Sophia",
       "status": "online",
       "is_ai": true
     }
@@ -530,6 +530,7 @@ _Known quirks:_ Router-Responses erwarten `count` bzw. `status`. RoomService lie
     -   Room-Metadaten: room_name
     -   **Use Case:** Conversation Detail Page – ein Request statt mehrerer
     -   **Vorteil:** Vermeidet Filtern der kompletten Liste, liefert erweiterte Metadaten
+    -   **Archiviert:** Wird auch für archivierte Conversations geliefert, wenn User Participant ist oder Admin (für Memory-Links relevant)
 
 -   **`PATCH /conversations/{conversation_id}`** – Update Conversation Metadata. **CSRF erforderlich**. **NEU!**
     -   **Body:** `ConversationUpdate`
@@ -555,7 +556,7 @@ _Known quirks:_ Router-Responses erwarten `count` bzw. `status`. RoomService lie
     -   **Aktionen:**
         - Setzt `is_active = false` (Soft Delete)
         - Daten bleiben erhalten (Messages, Participants)
-        - Archivierte Conversations erscheinen nicht mehr in `GET /conversations/`
+        - Archivierte Conversations erscheinen nicht mehr in `GET /conversations/` (Aktiv-List), sind aber weiter über `GET /conversations/{id}` lesbar (Participants/Admin)
         - **Triggers long-term memory creation** (background task für AI, falls vorhanden)
     -   **Response:** `204 No Content`
     -   **Fehler:** `403` wenn User kein Participant, `404` wenn Conversation nicht existiert
@@ -662,6 +663,7 @@ _Known quirks:_ Router-Responses erwarten `count` bzw. `status`. RoomService lie
   "response_probability": 0.3,
   "cooldown_seconds": 30,
   "config": {"memory_limit": 10},
+  "avatar_url": "https://api.dicebear.com/7.x/bottts/svg?seed=sophia",
   "status": "online",
   "is_active": true,
   "current_room_id": 5,
@@ -678,6 +680,7 @@ _Known quirks:_ Router-Responses erwarten `count` bzw. `status`. RoomService lie
 - **`conversation_response_strategy`**: Steuert wie AI in privaten/Gruppen-Conversations reagiert (siehe 5.1.1)
 - **`response_probability`**: Float 0.0-1.0, nur relevant bei `room_probabilistic` Strategy
 - **`cooldown_seconds`**: Minimale Sekunden zwischen AI-Antworten (null = kein Cooldown, 0-3600 erlaubt)
+- **`avatar_url`**: Avatar-URL (DiceBear API, Style: "bottts") - wird automatisch beim Create generiert, kann optional überschrieben werden
 - **`is_active`**: Boolean, false wenn AI gelöscht/archiviert wurde
 
 **Hinweise:**
@@ -736,6 +739,7 @@ _Known quirks:_ Router-Responses erwarten `count` bzw. `status`. RoomService lie
 - `response_probability` (optional): 0.0-1.0 (default: 0.3)
 - `cooldown_seconds` (optional): 0-3600 oder null (default: null)
 - `config` (optional): JSON für zusätzliche LangChain-Parameter
+- `avatar_url` (optional): Custom Avatar-URL (wird automatisch generiert falls null, Style: "bottts")
 - `status` (Update only): "online" | "offline"
 - `current_room_id` (Update only): Room-Zuweisung
 
@@ -795,8 +799,8 @@ _Known quirks:_ Router-Responses erwarten `count` bzw. `status`. RoomService lie
 
 | Layer | Purpose | user_id | embedding | Trigger |
 |-------|---------|---------|-----------|---------|
-| Short-term | Recent conversation context | Set | No | After each AI response |
-| Long-term | Past conversation archives | Set | Yes | On conversation archive (DELETE) |
+| Short-term | Recent conversation context (chunked à 24 Messages) | Set | No | Nach jeder AI-Antwort (inline) + Catch-up beim LTM-Task für fehlende/partielle Chunks (<24) |
+| Long-term | Persistente Fakten aus Konversationen | Set | Yes | Beim Archivieren (DELETE) oder AI-Leave → ARQ-Task mit Fakt-Extraktion |
 | Personality | Global knowledge base | NULL | Yes | Admin upload |
 
 **Retrieval:**
@@ -805,16 +809,49 @@ _Known quirks:_ Router-Responses erwarten `count` bzw. `status`. RoomService lie
 - Tiered context building (guaranteed minimums per layer)
 
 **Configuration (`.env`):**
+
+**Embedding & Vector Search:**
 - `ENABLE_VECTOR_SEARCH=true` - Enable vector retrieval
 - `EMBEDDING_PROVIDER=google` - Embedding provider: "google" (Gemini) or "openai" (OpenAI)
 - `EMBEDDING_MODEL=gemini-embedding-001` - Model name (or text-embedding-3-small for OpenAI)
 - `EMBEDDING_DIMENSIONS=1536` - Vector dimensions (default: 1536)
-- `TOTAL_MEMORY_LIMIT=7` - Max memories in context
+- `VECTOR_SEARCH_WEIGHT=0.7` - Weight for vector search in hybrid retrieval
+- `KEYWORD_SEARCH_WEIGHT=0.3` - Weight for keyword search in hybrid retrieval
+
+**Memory Retrieval:**
+- `TOTAL_MEMORY_LIMIT=10` - Max memories in context (default: 10)
+- `GUARANTEED_SHORT_TERM=2` - Guaranteed minimum short-term memories
+- `GUARANTEED_LONG_TERM=2` - Guaranteed minimum long-term memories
+- `GUARANTEED_PERSONALITY=1` - Guaranteed minimum personality memories
 - `SHORT_TERM_WEIGHT=2.0` - Recency boost for short-term
+- `LONG_TERM_WEIGHT=1.0` - Weight for long-term memories
+- `PERSONALITY_WEIGHT=1.0` - Weight for personality memories
+- `SHORT_TERM_CANDIDATES=5` - Candidate limit for short-term (over-fetch for RRF)
+- `LONG_TERM_CANDIDATES=5` - Candidate limit for long-term (over-fetch for RRF)
+- `PERSONALITY_CANDIDATES=5` - Candidate limit for personality (over-fetch for RRF)
+
+**Short-Term Memory:**
 - `SHORT_TERM_TTL_DAYS=7` - TTL for short-term memories (default: 7 days)
+
+**Long-Term Memory (LTM) Extraction:**
+- `LTM_PROVIDER=google` - LTM extraction provider: "google" (Gemini) or "openai" (OpenAI)
+- `LTM_EXTRACTION_MODEL=gemini-2.5-flash-lite` - Model for fact extraction (or gpt-4o-mini for OpenAI)
+- `LTM_EXTRACTION_TEMPERATURE=0.3` - Temperature for LTM extraction
+- `LTM_MAX_FACTS_PER_CHUNK=10` - Max facts extracted per chunk
+- `LTM_MIN_IMPORTANCE_THRESHOLD=0.3` - Min importance score for facts (0.0-1.0)
+- `LTM_EXTRACTION_MAX_RETRIES=3` - Number of retries before fallback
+- `LTM_EXTRACTION_RETRY_DELAY=1.0` - Delay between retries (seconds)
+
+**Keyword Extraction (YAKE):**
 - `KEYWORD_LANGUAGE=de` - Keyword extraction language: "de" (German) or "en" (English)
 - `KEYWORD_MAX_NGRAMS=3` - Max n-gram size for phrases (default: 3)
-- `KEYWORD_TOP_N=20` - Number of keywords to extract (default: 20)
+- `KEYWORD_WINDOW_SIZE=3` - Context window size for co-occurrence
+- `KEYWORD_DEDUP_THRESHOLD=0.9` - Deduplication threshold (0.0-1.0)
+- `KEYWORD_MIN_LENGTH=2` - Minimum keyword length (allows "AI", "KI")
+- `KEYWORD_TOP_N=20` - Number of candidate keywords to extract
+
+**RRF (Reciprocal Rank Fusion):**
+- `RRF_CONSTANT_K=60` - Standard RRF constant for rank fusion
 
 **Note:** Currently supports private conversations only. Group/room memory planned.
 
@@ -824,24 +861,64 @@ _Known quirks:_ Router-Responses erwarten `count` bzw. `status`. RoomService lie
 
 `MemoryResponse`:
 
+**Long-Term Memory (Fact-based):**
 ```json
 {
   "id": 9,
   "entity_id": 4,
   "conversation_id": 12,
   "room_id": null,
-  "summary": "testadmin: Ich denke über X nach...",
-  "memory_content": {"full_text": "testadmin: Ich denke...\n\nAssistant Alpha: Das ist interessant..."},
+  "summary": "Philosophy",
+  "memory_content": {
+    "fact": {
+      "text": "testadmin mentioned they are interested in determinism and free will, especially Kant's perspective",
+      "importance": 0.8,
+      "participants": ["testadmin"],
+      "theme": "Philosophy"
+    },
+    "conversation_id": 12,
+    "chunk_index": 0,
+    "message_range": "0-23",
+    "message_ids": [100, 101, 102, 103]
+  },
   "keywords": ["determinismus", "freier wille", "kant"],
-  "importance_score": 1.0,
-  "embedding": [0.123, -0.456, ...],  // 1536-dimensional vector or null
+  "importance_score": 0.8,
+  "embedding": [0.123, -0.456, ...],  // 1536-dimensional vector
   "access_count": 2,
   "memory_metadata": {
     "type": "long_term",
+    "from_short_term": true,
+    "conversation_id": 12,
     "chunk_index": 0,
-    "total_chunks": 8,
-    "created_by": "admin",
-    "extractor_used": "yake"
+    "fact_hash": "a3b2c1d4..."
+  },
+  "created_at": "2024-05-28T10:00:00+00:00",
+  "last_accessed": "2024-05-28T10:05:00+00:00"
+}
+```
+
+**Short-Term Memory (Text-based Chunks):**
+```json
+{
+  "id": 8,
+  "entity_id": 4,
+  "conversation_id": 12,
+  "room_id": null,
+  "summary": "testadmin: Ich denke über X nach...",
+  "memory_content": {
+    "messages": [
+      {"message_id": 100, "sender_name": "testadmin", "content": "Ich denke über X nach"},
+      {"message_id": 101, "sender_name": "Assistant Alpha", "content": "Das ist interessant..."}
+    ]
+  },
+  "keywords": ["determinismus", "philosophie"],
+  "importance_score": 1.0,
+  "embedding": null,  // STM has no embedding
+  "access_count": 0,
+  "memory_metadata": {
+    "type": "short_term",
+    "chunk_index": 0,
+    "message_range": "0-23"
   },
   "created_at": "2024-05-28T10:00:00+00:00",
   "last_accessed": "2024-05-28T10:05:00+00:00"
@@ -849,11 +926,32 @@ _Known quirks:_ Router-Responses erwarten `count` bzw. `status`. RoomService lie
 ```
 
 **Wichtige Felder:**
-- `summary`: Erste 200 Zeichen des Texts mit echten Usernamen
-- `memory_content.full_text`: Vollständiger Chunk-Text im Format `"username: message\n\nusername: message"`
+- `summary`:
+  - **Automatische LTM (fact-based)**: `fact.theme` (z.B. "Philosophy", "Travel")
+  - **Manuelle LTM (text-based)**: Erste 200 Zeichen des Texts
+  - **STM**: Erste 200 Zeichen
+- `memory_content`: Strukturiert unterschiedlich je nach Memory-Typ
+  - **Automatische LTM (fact-based)**: `fact`, `conversation_id`, `chunk_index`, `message_range`, `message_ids`
+  - **Manuelle LTM (text-based)**: `full_text` mit vollständigem Text
+  - **STM (text-based)**: `messages` Array mit `message_id`, `sender_name`, `content`
+- `importance_score`:
+  - **Automatische LTM (fact-based)**: Aus LLM Fact-Extraction (0.0-1.0, gefiltert nach `LTM_MIN_IMPORTANCE_THRESHOLD`)
+  - **Manuelle LTM (text-based)**: 1.0 (fest)
+  - **STM**: 1.0 (fest)
 - `memory_metadata.type`: `"short_term"`, `"long_term"`, oder `"personality"`
 - `memory_metadata.chunk_index`: Position im Conversation-Archiv (0-basiert)
-- `embedding`: 1536-dim Vektor für Semantic Search (null bei short-term)
+- `memory_metadata.fact_hash`: Hash zur Duplikat-Erkennung (nur bei automatischer LTM)
+- `memory_metadata.created_by`: `"admin"` (manuell) oder fehlt (automatisch)
+- `embedding`: 1536-dim Vektor für Semantic Search (null bei STM, present bei LTM)
+
+**Summary: Memory-Strukturen im Überblick**
+
+| Memory-Typ | `memory_content` Struktur | Erstellung | Embedding | `importance_score` |
+|------------|---------------------------|------------|-----------|-------------------|
+| **Short-Term (STM)** | `messages` Array | Nach jeder AI-Antwort (inline) | Nein (null) | 1.0 (fest) |
+| **Long-Term (automatisch)** | `fact` Object (fact-based) | ARQ-Task bei Archive/AI-Leave | Ja | LLM-Extraktion (0.0-1.0) |
+| **Long-Term (manuell)** | `full_text` String (text-based) | POST /memories (Admin) | Ja | 1.0 (fest) |
+| **Personality** | `full_text` String | POST /memories/admin/ai-entities/{id}/personality | Ja | Konfigurierbar |
 
 `MemoryListResponse`:
 
@@ -870,13 +968,27 @@ _Known quirks:_ Router-Responses erwarten `count` bzw. `status`. RoomService lie
 ### 6.2 Memory Management Endpoints (Admin-only)
 
 **Automatic Memory Creation:**
-- **Short-term:** Created after each AI response (inline, no embedding, TTL configurable via `SHORT_TERM_TTL_DAYS`, default 7 days)
-- **Long-term:** Created when conversation archived via `DELETE /conversations/{id}` (background task, chunked + embedded using configured embedding provider)
-- **Cleanup:** Daily cron job (3 AM) removes short-term memories older than TTL
+- **Short-term:** Created after each AI response (inline, no embedding, TTL via `SHORT_TERM_TTL_DAYS`)
+  - Chunked in 24er Blöcken (`memory_metadata.type=short_term`, `chunk_index`, `message_range`)
+  - Incremental chunking: Nur der neueste vollständige Chunk wird erstellt (idempotent)
+  - Bei jeder AI-Antwort: Wenn 24 neue Messages vorhanden → 1 neuer Chunk
+  - Catch-up Mechanismus im LTM-Task füllt fehlende/partielle Chunks nach (auch bei <24 Messages)
+- **Long-term:** ARQ-Task bei Conversation-Archive (`DELETE /conversations/{id}`) oder AI-Leave
+  - **Automatische Participant-Erkennung:** user_ids werden automatisch aus Conversation geholt (keine manuelle Übergabe nötig)
+  - **Catch-up STM Chunks:** Vor LTM-Extraktion werden fehlende STM-Chunks automatisch nachgefüllt
+  - **Fact Extraction:** LLM (Google Gemini oder OpenAI, siehe `LTM_PROVIDER`/`LTM_EXTRACTION_MODEL`) extrahiert strukturierte Fakten aus jedem STM-Chunk
+  - **Max Facts:** `LTM_MAX_FACTS_PER_CHUNK` Fakten pro Chunk (default: 10)
+  - **Importance Filtering:** Nur Fakten mit Score ≥ `LTM_MIN_IMPORTANCE_THRESHOLD` werden gespeichert
+  - **Embeddings:** Jeder Fakt wird einzeln embedded (1 Fakt = 1 LTM Entry = 1 Embedding)
+  - **Retry Logic:** Bei Fehlern wird Extraktion `LTM_EXTRACTION_MAX_RETRIES` mal wiederholt (default: 3)
+  - **STM Cleanup:** STM-Chunks werden nur nach erfolgreicher LTM-Erstellung gelöscht (transaktional)
+- **Cleanup:** Daily cron (3 AM) entfernt STM älter als `SHORT_TERM_TTL_DAYS`.
 
-**Manual Long-Term Memory Creation (Context-Aware):**
+**Manual Long-Term Memory Creation (Text-based):**
 
-**POST `/memories`** – Create manual long-term memory. **CSRF erforderlich**.
+**POST `/memories`** – Create manual long-term memory (Text-based). **CSRF erforderlich**.
+
+**Wichtig:** Manuelle Memories verwenden **Text-based Struktur** (`full_text`), während automatische LTM **Fact-based Struktur** (`fact`) verwendet.
 
 Request:
 ```json
@@ -890,31 +1002,44 @@ Request:
 ```
 
 **Wichtig:**
-- `user_ids` ist **PFLICHT** (Frontend sendet Participant-IDs)
-- `text` max **500 Zeichen** (gleiche Länge wie Chunks)
+- `user_ids` ist **PFLICHT beim manuellen Erstellen** (Frontend sendet Participant-IDs aus `conversation.participants`)
+- Bei **automatischer LTM-Erstellung** (Conversation-Archive, AI-Leave) werden `user_ids` automatisch aus der Conversation geholt
 - Format: `"username: message\n\nusername: message"` (Doppelzeilenumbruch zwischen Messages)
 - Backend erstellt automatisch:
-  - Embedding (Google/OpenAI API)
-  - Keywords (YAKE, Deutsche Stopwords)
+  - Embedding (Google/OpenAI API, abhängig von `EMBEDDING_PROVIDER`)
+  - Keywords (YAKE, Sprache aus `KEYWORD_LANGUAGE`)
   - Summary (erste 200 Zeichen)
   - chunk_index (max existing + 1)
+  - `importance_score`: 1.0 (fest bei manueller Erstellung)
 
-Response: Single `MemoryResponse` mit Embedding
-
-**Frontend Config (Hardcoded):**
-```typescript
-// lib/config.ts
-export const MEMORY_CONFIG = {
-  MESSAGE_LENGTH: 500,
-  MEMORY_TEXT_LENGTH: 500,
-  CHUNK_SIZE: 500,
-} as const;
+Response: Single `MemoryResponse` mit **Text-based Struktur**:
+```json
+{
+  "id": 10,
+  "entity_id": 1,
+  "conversation_id": 5,
+  "summary": "testadmin: Ich denke über X nach...",
+  "memory_content": {
+    "full_text": "testadmin: Ich denke über X nach\n\nAssistant Alpha: Das ist interessant..."
+  },
+  "keywords": ["denken", "interessant"],
+  "importance_score": 1.0,
+  "embedding": [0.123, ...],
+  "memory_metadata": {
+    "type": "long_term",
+    "chunk_index": 2,
+    "created_by": "admin",
+    "extractor_used": "yake"
+  }
+}
 ```
+
+**Frontend-Hinweis:** Es gibt keine serverseitige harte Begrenzung auf 500 Zeichen im Memory-Endpunkt; Textlänge orientiert sich an praktikablen Chunk-Größen. UI kann eigene Limits setzen.
 
 **GET Endpoints (kein CSRF):**
 -   `GET /memories?entity_id=1&conversation_id=5&include_short_term=false` – Filter + Pagination (Admin)
-    - Bei `entity_id`-Filter wird aktuell nur nach `entity_id`/`room_id` gefiltert; `conversation_id` wird ignoriert und `page` wirkt nicht (es werden max. `page_size` Items zurückgegeben).
-    - **Neu:** `include_short_term` Parameter (default: false); Short-term memories werden standardmäßig ausgeblendet.
+    - `entity_id`/`room_id` werden gefiltert; `conversation_id` wird aktuell nicht gefiltert (Bekannter Stand: UI ggf. filtern).
+    - `include_short_term` (default: false) blendet STM standardmäßig aus.
     - Response: `MemoryListResponse`
 -   `GET /memories/{memory_id}` – Einzelnes Memory (`404` wenn nicht vorhanden)
 -   `GET /memories/search?entity_id=<id>&keywords=python,fastapi&limit=10` – Keyword-Suche
@@ -1243,4 +1368,4 @@ await fetch(`/api/conversations/${id}`, {
 - **Participants:** Sind bereits in Detail-Response enthalten (`username` = eindeutiger Identifier; separater `/participants` Endpoint nur bei Bedarf)
 - **Messages:** Immer separat laden (pagination), nutze `has_more` für infinite scroll
 - **Sortierung:** Messages kommen DESC (neueste zuerst) - für Chat-View ggf. clientseitig umkehren
-- **Archive:** Archivierte Conversations (`is_active=false`) erscheinen nicht in `GET /conversations/` - für "Archiv-View" separate Logik erforderlich
+- **Archive:** Archivierte Conversations (`is_active=false`) erscheinen nicht in `GET /conversations/` (Aktiv-Liste), sind aber über `GET /conversations/{id}` abrufbar (Participants/Admin) – für Archiv-View separate Logik/API-Call verwenden

@@ -14,6 +14,51 @@ export type MemoryResponse = {
   last_accessed: string | null;
 };
 
+/**
+ * Fact-based Memory Content (automatically created during conversation archive)
+ * Structured format with extracted facts, themes, and participants.
+ */
+export type FactBasedMemoryContent = {
+  fact: {
+    text: string;
+    importance: number;
+    participants: string[];
+    theme: string;
+  };
+  conversation_id: number;
+  chunk_index: number;
+  message_range: string;
+  message_ids: number[];
+};
+
+/**
+ * Text-based Memory Content (manually created or personality data)
+ * Simple format with full text content.
+ */
+export type TextBasedMemoryContent = {
+  full_text: string;
+};
+
+/**
+ * Type guard: Check if memory is a fact-based long-term memory.
+ * These are automatically created during conversation archiving.
+ */
+export function isFactBasedMemory(memory: MemoryResponse): boolean {
+  const metadata = memory.memory_metadata as { type?: string } | null;
+  const content = memory.memory_content as Record<string, unknown>;
+  return metadata?.type === "long_term" && "fact" in content;
+}
+
+/**
+ * Type guard: Check if memory is a text-based memory.
+ * These include manually created long-term memories and personality data.
+ */
+export function isTextBasedMemory(memory: MemoryResponse): boolean {
+  const metadata = memory.memory_metadata as { type?: string } | null;
+  const content = memory.memory_content as Record<string, unknown>;
+  return (metadata?.type === "long_term" || metadata?.type === "personality") && "full_text" in content;
+}
+
 export type MemoryListResponse = {
   memories: MemoryResponse[];
   total: number;

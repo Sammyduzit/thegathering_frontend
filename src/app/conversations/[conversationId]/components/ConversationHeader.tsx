@@ -72,11 +72,11 @@ export function ConversationHeader({
             className="text-[0.6rem]"
             disabled={isArchiving || !canArchive}
           >
-            {isArchiving ? "Deleting..." : isActive ? "Delete conversation" : "Restore conversation"}
+            {isArchiving ? "Closing..." : isActive ? "Close conversation" : "Restore conversation"}
           </AuroraButton>
           {!canArchive && (
             <span className="text-[0.6rem] text-text-faint">
-              Only participants can delete or restore this conversation.
+              Only participants can close or restore this conversation.
             </span>
           )}
         </div>

@@ -3,7 +3,6 @@ import MeClient from "./MeClient";
 import GlassPanel from "@/components/ui/GlassPanel";
 import AlertStrip from "@/components/ui/AlertStrip";
 import { AuroraLinkButton } from "@/components/ui/AuroraButton";
-import type { UserQuotaResponse } from "@/types/user";
 
 export const dynamic = "force-dynamic";
 
@@ -57,20 +56,6 @@ export default async function MePage() {
 
   const me = await res.json();
 
-  let quota: UserQuotaResponse | null = null;
-  try {
-    const quotaRes = await fetch(`${baseUrl}/api/auth/users/me/quota`, {
-      headers: { cookie: cookieHeader },
-      cache: "no-store",
-    });
-
-    if (quotaRes.ok) {
-      quota = (await quotaRes.json()) as UserQuotaResponse;
-    }
-  } catch {
-    quota = null;
-  }
-
   return (
     <main className="mx-auto max-w-6xl px-4 md:px-6 py-6 space-y-7">
       <GlassPanel as="header" className="rounded-3xl px-7 py-8 space-y-4">
@@ -84,7 +69,6 @@ export default async function MePage() {
       </GlassPanel>
       <MeClient
         initialProfile={me}
-        initialQuota={quota}
         supportedLanguages={SUPPORTED_LANGUAGES}
       />
     </main>

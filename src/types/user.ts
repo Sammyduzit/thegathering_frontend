@@ -13,6 +13,9 @@ export type UserResponse = {
   created_at: string;
   last_active: string | null;
   current_room_id: number | null;
+  weekly_message_count: number;
+  weekly_message_limit: number;
+  weekly_reset_date: string;
 };
 
 /**

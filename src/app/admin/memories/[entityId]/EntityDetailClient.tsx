@@ -137,7 +137,7 @@ export default function EntityDetailClient({ entity, initialMemories }: Props) {
               : "text-text-soft hover:text-white"
           }`}
         >
-          Long-Term Conversations ({conversationGroups.length})
+          Long-Term Memories ({conversationGroups.length})
         </button>
       </div>
 
@@ -260,6 +260,19 @@ export default function EntityDetailClient({ entity, initialMemories }: Props) {
                           {category}
                         </span>
                       )}
+                      {/* Memory Content Preview */}
+                      {(() => {
+                        const content = memory.memory_content as Record<string, unknown>;
+                        if (content.full_text && typeof content.full_text === "string") {
+                          const preview = content.full_text.substring(0, 150);
+                          return (
+                            <p className="mt-2 text-xs text-muted">
+                              {preview}{content.full_text.length > 150 ? "..." : ""}
+                            </p>
+                          );
+                        }
+                        return null;
+                      })()}
                       <p className="mt-2 text-xs text-text-faint">
                         Keywords: {memory.keywords.length ? memory.keywords.join(", ") : "—"}
                       </p>
