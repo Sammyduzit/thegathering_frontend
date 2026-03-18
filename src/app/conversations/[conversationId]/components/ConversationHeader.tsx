@@ -39,7 +39,7 @@ export function ConversationHeader({
             {roomName ?? `Conversation #${id}`}
           </h1>
           <div className="mt-3 flex flex-wrap items-center gap-3">
-            <p className="text-muted leading-relaxed">
+            <p className="text-text-muted leading-relaxed">
               Type: {type}. Room ID: {roomId ?? "–"}. Created {formatDateTime(createdAt)}.
             </p>
             {roomId && (

@@ -11,7 +11,7 @@ type MessageListProps = {
 export function MessageList({ messages, currentUsername, aiUsernames, isInRoom }: MessageListProps) {
   if (messages.length === 0) {
     return (
-      <p className="text-sm text-muted">
+      <p className="text-sm text-text-muted">
         {isInRoom
           ? "No messages yet. Start the conversation below."
           : "Messages are hidden until you join this room."}
@@ -49,7 +49,7 @@ export function MessageList({ messages, currentUsername, aiUsernames, isInRoom }
                 {formatDateTime(message.sent_at)}
               </time>
             </header>
-            <p className="mt-2 whitespace-pre-wrap text-sm text-muted">{message.content}</p>
+            <p className="mt-2 whitespace-pre-wrap text-sm text-text-muted">{message.content}</p>
           </article>
         );
       })}

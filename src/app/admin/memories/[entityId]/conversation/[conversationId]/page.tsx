@@ -39,7 +39,7 @@ export default async function ConversationMemoriesPage({ params }: Props) {
     return (
       <GlassPanel as="section" className="max-w-lg mx-auto px-7 py-10 text-center">
         <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">Unauthorized</h1>
-        <p className="mt-4 text-sm text-muted">This page is restricted to administrators.</p>
+        <p className="mt-4 text-sm text-text-muted">This page is restricted to administrators.</p>
       </GlassPanel>
     );
   }
@@ -124,7 +124,7 @@ export default async function ConversationMemoriesPage({ params }: Props) {
             ← Back to {entity.username}
           </a>
         </div>
-        <div className="text-sm text-muted space-y-1">
+        <div className="text-sm text-text-muted space-y-1">
           <p>
             Entity: <span className="text-white">{entity.username}</span>
           </p>

@@ -31,7 +31,7 @@ export default async function AdminMemoriesPage() {
     return (
       <GlassPanel as="section" className="max-w-lg mx-auto px-7 py-10 text-center">
         <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">Memory Management</h1>
-        <p className="mt-4 text-sm text-muted">This page is restricted to administrators.</p>
+        <p className="mt-4 text-sm text-text-muted">This page is restricted to administrators.</p>
       </GlassPanel>
     );
   }
@@ -59,7 +59,7 @@ export default async function AdminMemoriesPage() {
     <GlassPanel as="section" className="mx-auto max-w-4xl space-y-6 p-8">
       <header>
         <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">Memory Management</h1>
-        <p className="mt-2 text-sm text-muted">
+        <p className="mt-2 text-sm text-text-muted">
           Select an AI entity to manage its memories (personality knowledge and conversation archives).
         </p>
       </header>
@@ -67,7 +67,7 @@ export default async function AdminMemoriesPage() {
       {/* Info Card */}
       <div className="rounded-2xl border border-border-panel bg-surface-soft p-6 space-y-3">
         <h2 className="text-base font-semibold text-white">About Memory Management</h2>
-        <div className="text-sm text-muted space-y-2">
+        <div className="text-sm text-text-muted space-y-2">
           <p>
             <strong className="text-white">Personality Memories:</strong> Global knowledge base
             uploaded as large text (books, documentation, etc.). These memories are available to
@@ -103,7 +103,7 @@ export default async function AdminMemoriesPage() {
                   <h3 className="text-base font-semibold text-white group-hover:text-gold transition-colors">
                     {entity.username}
                   </h3>
-                  <p className="mt-1 text-sm text-muted truncate">
+                  <p className="mt-1 text-sm text-text-muted truncate">
                     {entity.description || "No description"}
                   </p>
                   <p className="mt-2 text-xs text-text-faint">

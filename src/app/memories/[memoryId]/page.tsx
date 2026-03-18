@@ -18,7 +18,7 @@ export default async function MemoryDetailPage({ params }: PageProps) {
     return (
       <GlassPanel as="section" className="max-w-lg mx-auto px-7 py-10 text-center">
         <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">AI Memories</h1>
-        <p className="mt-4 text-sm text-muted">Please sign in as an administrator.</p>
+        <p className="mt-4 text-sm text-text-muted">Please sign in as an administrator.</p>
       </GlassPanel>
     );
   }
@@ -34,7 +34,7 @@ export default async function MemoryDetailPage({ params }: PageProps) {
     return (
       <GlassPanel as="section" className="max-w-lg mx-auto px-7 py-10 text-center">
         <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">AI Memories</h1>
-        <p className="mt-4 text-sm text-muted">Session expired. Please sign in again.</p>
+        <p className="mt-4 text-sm text-text-muted">Session expired. Please sign in again.</p>
       </GlassPanel>
     );
   }
@@ -45,7 +45,7 @@ export default async function MemoryDetailPage({ params }: PageProps) {
     return (
       <GlassPanel as="section" className="max-w-lg mx-auto px-7 py-10 text-center">
         <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">AI Memories</h1>
-        <p className="mt-4 text-sm text-muted">This page is restricted to administrators.</p>
+        <p className="mt-4 text-sm text-text-muted">This page is restricted to administrators.</p>
       </GlassPanel>
     );
   }
@@ -74,7 +74,7 @@ export default async function MemoryDetailPage({ params }: PageProps) {
 
   return (
     <GlassPanel as="section" className="mx-auto max-w-5xl space-y-6 p-8">
-      <Link href="/admin/memories" className="text-xs uppercase tracking-[0.32em] text-muted hover:text-white">
+      <Link href="/admin/memories" className="text-xs uppercase tracking-[0.32em] text-text-muted hover:text-white">
         &lt; Back to memories
       </Link>
       <MemoryDetailClient initialMemory={memory} />

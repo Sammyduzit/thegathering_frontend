@@ -25,11 +25,11 @@ export function MessageInput({
   onClearError,
 }: MessageInputProps) {
   if (!isInRoom) {
-    return <p className="mt-3 text-sm text-muted">Join the room to send messages.</p>;
+    return <p className="mt-3 text-sm text-text-muted">Join the room to send messages.</p>;
   }
 
   if (!isRoomActive) {
-    return <p className="mt-3 text-sm text-muted">This room is closed. Messages can no longer be sent.</p>;
+    return <p className="mt-3 text-sm text-text-muted">This room is closed. Messages can no longer be sent.</p>;
   }
 
   return (

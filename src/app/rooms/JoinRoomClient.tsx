@@ -44,12 +44,12 @@ export default function JoinRoomClient({ room, currentRoomId }: Props) {
           <div>
             <h2 className="text-2xl font-semibold tracking-[0.08em] text-white">{room.name}</h2>
             {room.description && (
-              <p className="text-sm text-muted leading-relaxed max-w-xl">{room.description}</p>
+              <p className="text-sm text-text-muted leading-relaxed max-w-xl">{room.description}</p>
             )}
           </div>
           {room.has_ai && <span className="badge-ai">AI</span>}
         </div>
-        <div className="flex flex-wrap items-center gap-3 text-[0.68rem] uppercase tracking-[0.3em] text-muted">
+        <div className="flex flex-wrap items-center gap-3 text-[0.68rem] uppercase tracking-[0.3em] text-text-muted">
           <span>{room.is_active ? "Open Clearing" : "Closed"}</span>
           {room.max_users && <span>Max {room.max_users} participants</span>}
           <span>{formatDateTime(room.created_at)}</span>

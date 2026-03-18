@@ -6,17 +6,7 @@ import GlassPanel from "@/components/ui/GlassPanel";
 import { AuroraButton } from "@/components/ui/AuroraButton";
 import { AuroraInput, AuroraTextarea } from "@/components/ui/AuroraInput";
 import AlertStrip from "@/components/ui/AlertStrip";
-
-type Room = {
-  id: number;
-  name: string;
-  description: string | null;
-  max_users: number | null;
-  is_translation_enabled: boolean;
-  is_active: boolean;
-  has_ai: boolean;
-  created_at: string;
-};
+import type { Room } from "@/types/room";
 
 type RoomFormState = {
   name: string;
@@ -184,10 +174,10 @@ export default function RoomManagementClient({ initialRooms }: Props) {
   };
 
   return (
-    <main className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6">
       <GlassPanel className="px-7 py-6">
         <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">Room Management</h1>
-        <p className="mt-2 text-sm text-muted leading-relaxed">Create and manage gathering spaces.</p>
+        <p className="mt-2 text-sm text-text-muted leading-relaxed">Create and manage gathering spaces.</p>
       </GlassPanel>
 
       {feedback && <AlertStrip variant="notice">{feedback}</AlertStrip>}
@@ -196,7 +186,7 @@ export default function RoomManagementClient({ initialRooms }: Props) {
       <div className="grid gap-6 lg:grid-cols-3">
         <GlassPanel className="px-6 py-6 space-y-4 lg:col-span-1">
           <h2 className="text-xl font-semibold tracking-[0.08em] text-white">Existing rooms</h2>
-          <p className="text-sm text-muted">Select a room to view and edit its configuration.</p>
+          <p className="text-sm text-text-muted">Select a room to view and edit its configuration.</p>
           <div className="space-y-3">
             {rooms.map((room) => {
               const isSelected = room.id === selectedRoomId;
@@ -259,7 +249,7 @@ export default function RoomManagementClient({ initialRooms }: Props) {
               onChange={(event) => setCreateForm((prev) => ({ ...prev, max_users: event.target.value }))}
               placeholder="Leave empty for unlimited"
             />
-            <label className="flex items-center gap-2 text-sm text-muted cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
               <input
                 type="checkbox"
                 className="rounded border-border-aurora bg-surface-soft focus:ring-2 focus:ring-border-aurora"
@@ -304,7 +294,7 @@ export default function RoomManagementClient({ initialRooms }: Props) {
                 onChange={(event) => setEditForm((prev) => prev && ({ ...prev, max_users: event.target.value }))}
                 placeholder="Leave empty for unlimited"
               />
-              <label className="flex items-center gap-2 text-sm text-muted cursor-pointer">
+              <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
                 <input
                   type="checkbox"
                   className="rounded border-border-aurora bg-surface-soft focus:ring-2 focus:ring-border-aurora"
@@ -337,6 +327,6 @@ export default function RoomManagementClient({ initialRooms }: Props) {
           )}
         </GlassPanel>
       </div>
-    </main>
+    </div>
   );
 }

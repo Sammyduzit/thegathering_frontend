@@ -62,7 +62,7 @@ export default async function QuotaAdminPage() {
       <div className="max-w-7xl mx-auto px-6 py-12">
         <GlassPanel className="p-8 text-center">
           <h2 className="text-xl font-semibold text-white mb-2">Authentication Required</h2>
-          <p className="text-muted">Please sign in to access this page.</p>
+          <p className="text-text-muted">Please sign in to access this page.</p>
         </GlassPanel>
       </div>
     );
@@ -74,13 +74,13 @@ export default async function QuotaAdminPage() {
     <div className="max-w-7xl mx-auto px-6 py-12">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">Quota Monitoring</h1>
-        <p className="text-muted">Users who have exceeded their weekly message quota</p>
+        <p className="text-text-muted">Users who have exceeded their weekly message quota</p>
       </div>
 
       <GlassPanel className="p-6">
         {users.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-muted">No users have exceeded their quota</p>
+            <p className="text-text-muted">No users have exceeded their quota</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -98,12 +98,12 @@ export default async function QuotaAdminPage() {
                 {users.map((user) => (
                   <tr key={user.user_id} className="border-b border-border-panel hover:bg-white/5 transition-colors">
                     <td className="py-3 px-4 text-sm text-white">{user.username}</td>
-                    <td className="py-3 px-4 text-sm text-muted">{user.email}</td>
+                    <td className="py-3 px-4 text-sm text-text-muted">{user.email}</td>
                     <td className="py-3 px-4 text-sm text-right">
                       <span className="text-red-400 font-semibold">{user.used}</span>
                     </td>
                     <td className="py-3 px-4 text-sm text-right text-white">{user.limit}</td>
-                    <td className="py-3 px-4 text-sm text-right text-muted">
+                    <td className="py-3 px-4 text-sm text-right text-text-muted">
                       {formatDateTime(user.next_reset_date)}
                     </td>
                   </tr>

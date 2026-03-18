@@ -95,7 +95,7 @@ export default function ConversationDetailClient({
   const canArchiveConversation = canLeave;
 
   return (
-    <main className="max-w-5xl mx-auto px-4 md:px-6 py-6 space-y-7">
+    <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 space-y-7">
       <ConversationHeader
         id={conversationState.id}
         roomName={conversationState.room_name}
@@ -168,6 +168,6 @@ export default function ConversationDetailClient({
           Removing other participants may require additional permissions. The server enforces access rules.
         </p>
       )}
-    </main>
+    </div>
   );
 }

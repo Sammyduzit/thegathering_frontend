@@ -14,7 +14,7 @@ export default async function RoomsPage() {
     return (
       <GlassPanel as="section" className="max-w-lg mx-auto px-7 py-10 text-center">
         <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">Rooms</h1>
-        <p className="mt-4 text-muted leading-relaxed">
+        <p className="mt-4 text-text-muted leading-relaxed">
           Please sign in to wander through the clearings. Your presence unlocks the rooms and their gathered stories.
         </p>
         <AuroraLinkButton href="/login" className="mt-6 mx-auto uppercase tracking-[0.3em] text-xs">
@@ -37,7 +37,12 @@ export default async function RoomsPage() {
     return (
       <GlassPanel as="section" className="max-w-lg mx-auto px-7 py-10 text-center">
         <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">Rooms</h1>
-        <p className="mt-4 text-xs uppercase tracking-[0.32em] text-rose-300">{message}</p>
+        <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border-rose bg-rose-veil">
+          <span className="w-1.5 h-1.5 rounded-full bg-text-rose" />
+          <span className="text-[0.65rem] uppercase tracking-[0.24em] text-text-rose">
+            {message}
+          </span>
+        </div>
       </GlassPanel>
     );
   }
@@ -49,7 +54,7 @@ export default async function RoomsPage() {
       <GlassPanel className="px-7 py-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
         <div>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-[0.08em] text-white">Choose your clearing</h1>
-          <p className="mt-3 text-muted leading-relaxed md:max-w-2xl">
+          <p className="mt-3 text-text-muted leading-relaxed md:max-w-2xl">
             Each room hums with its own energy. Join a public gathering, invite companions for a smaller circle,
             or simply listen as stories drift beneath the starlit canopy.
           </p>

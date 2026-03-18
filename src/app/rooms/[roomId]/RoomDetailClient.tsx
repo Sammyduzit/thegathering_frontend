@@ -92,7 +92,7 @@ export default function RoomDetailClient({
   };
 
   return (
-    <main className="max-w-6xl mx-auto px-4 md:px-6 py-6 space-y-7">
+    <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 space-y-7">
       <RoomHeader
         room={room}
         overview={overview}
@@ -240,6 +240,6 @@ export default function RoomDetailClient({
         onCreate={handleCreateConversation}
         onCancel={conversation.cancelConversationCreation}
       />
-    </main>
+    </div>
   );
 }

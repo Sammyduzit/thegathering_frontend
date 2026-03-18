@@ -35,6 +35,7 @@ type FormState = {
   conversation_response_strategy: ConversationResponseStrategy;
   response_probability: string;
   cooldown_seconds: string;
+  agent_mode_enabled: boolean;
   config: string;
   avatar_url: string;
   status: "online" | "offline";
@@ -43,6 +44,7 @@ type FormState = {
 
 type Props = {
   initialEntities: AIEntityResponse[];
+  agentModeGlobal: boolean;
 };
 
 function entityToFormState(entity: AIEntityResponse): FormState {
@@ -57,6 +59,7 @@ function entityToFormState(entity: AIEntityResponse): FormState {
     conversation_response_strategy: entity.conversation_response_strategy,
     response_probability: entity.response_probability !== null ? String(entity.response_probability) : "",
     cooldown_seconds: entity.cooldown_seconds !== null ? String(entity.cooldown_seconds) : "",
+    agent_mode_enabled: entity.agent_mode_enabled,
     config: entity.config ? JSON.stringify(entity.config, null, 2) : "",
     avatar_url: entity.avatar_url ?? "",
     status: entity.status,
@@ -76,6 +79,7 @@ function emptyFormState(): FormState {
     conversation_response_strategy: "conv_on_questions",
     response_probability: "",
     cooldown_seconds: "",
+    agent_mode_enabled: false,
     config: "",
     avatar_url: "",
     status: "offline",
@@ -115,7 +119,7 @@ function parseResponseProbability(value: string): number {
   return Number(num.toFixed(3));
 }
 
-export default function AiManagementClient({ initialEntities }: Props) {
+export default function AiManagementClient({ initialEntities, agentModeGlobal }: Props) {
   const [entities, setEntities] = useState<AIEntityResponse[]>(initialEntities);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
@@ -192,6 +196,7 @@ export default function AiManagementClient({ initialEntities }: Props) {
         room_response_strategy: createForm.room_response_strategy,
         conversation_response_strategy: createForm.conversation_response_strategy,
         cooldown_seconds: cooldownSeconds ?? undefined,
+        agent_mode_enabled: createForm.agent_mode_enabled,
         config: parseConfig(createForm.config),
         avatar_url: createForm.avatar_url.trim() || undefined,
       };
@@ -247,6 +252,7 @@ export default function AiManagementClient({ initialEntities }: Props) {
         conversation_response_strategy: editForm.conversation_response_strategy,
         response_probability: responseProbability,
         cooldown_seconds: cooldownSeconds,
+        agent_mode_enabled: editForm.agent_mode_enabled,
         config: parseConfig(editForm.config),
         avatar_url: editForm.avatar_url.trim() || null,
         status: editForm.status,
@@ -305,12 +311,12 @@ export default function AiManagementClient({ initialEntities }: Props) {
   };
 
   return (
-    <main className="mx-auto max-w-6xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6">
       <GlassPanel className="px-7 py-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">AI Management</h1>
-            <p className="mt-2 text-sm text-muted leading-relaxed">Manage AI entities, status and room assignments.</p>
+            <p className="mt-2 text-sm text-text-muted leading-relaxed">Manage AI entities, status and room assignments.</p>
           </div>
           <AuroraButton
             onClick={() => setCreateOpen((prev) => !prev)}
@@ -434,6 +440,30 @@ export default function AiManagementClient({ initialEntities }: Props) {
               value={createForm.cooldown_seconds}
               onChange={(e) => setCreateForm((prev) => ({ ...prev, cooldown_seconds: e.target.value }))}
             />
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={createForm.agent_mode_enabled}
+                onClick={() => setCreateForm((prev) => ({ ...prev, agent_mode_enabled: !prev.agent_mode_enabled }))}
+                className="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none"
+                style={{ backgroundColor: createForm.agent_mode_enabled ? "var(--color-accent-gold)" : "var(--color-bg-surface-soft)" }}
+              >
+                <span
+                  className="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                  style={{ transform: createForm.agent_mode_enabled ? "translateX(1rem)" : "translateX(0)" }}
+                />
+              </button>
+              <div>
+                <span className="block text-xs uppercase tracking-[0.32em] text-text-soft">Agent mode</span>
+                <span className="block text-[0.65rem] text-text-faint mt-0.5">
+                  Requires global <code className="text-text-subtle">AI_AGENT_MODE_ENABLED=true</code> to take effect.
+                </span>
+                <span className="block text-[0.65rem] mt-0.5" style={{ color: agentModeGlobal ? "var(--color-accent-gold)" : "var(--color-text-rose)" }}>
+                  Currently: {agentModeGlobal ? "Enabled" : "Disabled"}
+                </span>
+              </div>
+            </div>
             <div className="md:col-span-2">
               <AuroraTextarea
                 label="Config (JSON)"
@@ -476,13 +506,14 @@ export default function AiManagementClient({ initialEntities }: Props) {
 
       <GlassPanel className="overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full text-sm text-muted">
+          <table className="min-w-full text-sm text-text-muted">
             <thead className="bg-panel-hover text-[0.65rem] uppercase tracking-[0.28em] text-text-soft">
               <tr>
                 <th className="px-5 py-4 text-left font-semibold">Name</th>
                 <th className="px-5 py-4 text-left font-semibold">Status</th>
                 <th className="px-5 py-4 text-left font-semibold">Model</th>
                 <th className="px-5 py-4 text-left font-semibold">Behaviour</th>
+                <th className="px-5 py-4 text-left font-semibold">Agent mode</th>
                 <th className="px-5 py-4 text-left font-semibold">Room</th>
                 <th className="px-5 py-4 text-left font-semibold">Last update</th>
                 <th className="px-5 py-4 text-right font-semibold">Actions</th>
@@ -548,6 +579,14 @@ export default function AiManagementClient({ initialEntities }: Props) {
                       <div>Cooldown: {entity.cooldown_seconds}s</div>
                     )}
                   </td>
+                  <td className="px-5 py-4 text-xs">
+                    <span
+                      className="font-medium"
+                      style={{ color: entity.agent_mode_enabled ? "var(--color-accent-gold)" : "var(--color-text-faint)" }}
+                    >
+                      {entity.agent_mode_enabled ? "Enabled" : "Disabled"}
+                    </span>
+                  </td>
                   <td className="px-5 py-4 text-sm">
                     {entity.current_room_id
                       ? entity.current_room_name
@@ -579,7 +618,7 @@ export default function AiManagementClient({ initialEntities }: Props) {
               ))}
               {entities.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-5 py-8 text-center text-sm text-text-soft uppercase tracking-[0.28em]">
+                  <td colSpan={7} className="px-5 py-8 text-center text-sm text-text-soft uppercase tracking-[0.28em]">
                     No AI entities found.
                   </td>
                 </tr>
@@ -697,6 +736,30 @@ export default function AiManagementClient({ initialEntities }: Props) {
               value={editForm.cooldown_seconds}
               onChange={(e) => setEditForm((prev) => prev ? { ...prev, cooldown_seconds: e.target.value } : prev)}
             />
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={editForm.agent_mode_enabled}
+                onClick={() => setEditForm((prev) => prev ? { ...prev, agent_mode_enabled: !prev.agent_mode_enabled } : prev)}
+                className="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none"
+                style={{ backgroundColor: editForm.agent_mode_enabled ? "var(--color-accent-gold)" : "var(--color-bg-surface-soft)" }}
+              >
+                <span
+                  className="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                  style={{ transform: editForm.agent_mode_enabled ? "translateX(1rem)" : "translateX(0)" }}
+                />
+              </button>
+              <div>
+                <span className="block text-xs uppercase tracking-[0.32em] text-text-soft">Agent mode</span>
+                <span className="block text-[0.65rem] text-text-faint mt-0.5">
+                  Requires global <code className="text-text-subtle">AI_AGENT_MODE_ENABLED=true</code> to take effect.
+                </span>
+                <span className="block text-[0.65rem] mt-0.5" style={{ color: agentModeGlobal ? "var(--color-accent-gold)" : "var(--color-text-rose)" }}>
+                  Currently: {agentModeGlobal ? "Enabled" : "Disabled"}
+                </span>
+              </div>
+            </div>
             <div className="space-y-2">
               <label className="block text-xs uppercase tracking-[0.32em] text-text-soft">
                 Status
@@ -769,6 +832,6 @@ export default function AiManagementClient({ initialEntities }: Props) {
           </div>
         </GlassPanel>
       )}
-    </main>
+    </div>
   );
 }

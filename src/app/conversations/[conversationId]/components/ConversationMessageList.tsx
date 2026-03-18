@@ -58,7 +58,7 @@ export function ConversationMessageList({
 
       <div className="space-y-4">
         {messages.length === 0 ? (
-          <p className="text-sm text-muted">No messages yet.</p>
+          <p className="text-sm text-text-muted">No messages yet.</p>
         ) : (
           [...messages].reverse().map((message) => {
             const avatarUrl = normalizeAvatarUrl(getParticipantAvatar(message.sender_username));
@@ -86,7 +86,7 @@ export function ConversationMessageList({
                     </time>
                   </div>
                 </header>
-                <p className="mt-2 whitespace-pre-wrap text-sm text-muted ml-11">{message.content}</p>
+                <p className="mt-2 whitespace-pre-wrap text-sm text-text-muted ml-11">{message.content}</p>
               </article>
             );
           })

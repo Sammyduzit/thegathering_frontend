@@ -177,7 +177,7 @@ export default function ConversationMemoriesClient({
 
       {/* Header Actions */}
       <div className="flex justify-between items-center">
-        <p className="text-sm text-muted">
+        <p className="text-sm text-text-muted">
           {sortedMemories.length} memory chunk{sortedMemories.length !== 1 ? "s" : ""}
         </p>
         <AuroraButton
@@ -190,15 +190,15 @@ export default function ConversationMemoriesClient({
 
       {/* Info Box */}
       <div className="rounded-2xl border border-border-panel bg-surface-soft p-4">
-        <p className="text-xs text-muted">
+        <p className="text-xs text-text-muted">
           <strong className="text-white">Format:</strong> Use double newlines between messages:{" "}
           <code className="text-text-aurora">username: message\n\nusername: reply</code>
         </p>
-        <p className="text-xs text-muted mt-2">
+        <p className="text-xs text-text-muted mt-2">
           <strong className="text-white">Limit:</strong> Max {MEMORY_CONFIG.MEMORY_TEXT_LENGTH}{" "}
           characters per memory chunk.
         </p>
-        <p className="text-xs text-muted mt-2">
+        <p className="text-xs text-text-muted mt-2">
           <strong className="text-white">User IDs:</strong> Automatically set to{" "}
           {userIds.length > 0 ? userIds.join(", ") : "none"} (non-AI participants).
         </p>
@@ -253,10 +253,10 @@ export default function ConversationMemoriesClient({
                         return (
                           <div className="space-y-2 text-xs">
                             <p className="text-white"><strong>Fact:</strong> {fact.text}</p>
-                            <p className="text-muted">Theme: {fact.theme}</p>
-                            <p className="text-muted">Participants: {fact.participants.join(", ")}</p>
-                            {content.message_range && (
-                              <p className="text-muted">Message Range: {String(content.message_range)}</p>
+                            <p className="text-text-muted">Theme: {fact.theme}</p>
+                            <p className="text-text-muted">Participants: {fact.participants.join(", ")}</p>
+                            {!!content.message_range && (
+                              <p className="text-text-muted">Message Range: {String(content.message_range)}</p>
                             )}
                           </div>
                         );
@@ -265,7 +265,7 @@ export default function ConversationMemoriesClient({
                       // Text-based LTM (manually created)
                       if ((metadata?.type === "long_term" || metadata?.type === "personality") && content.full_text && typeof content.full_text === "string") {
                         return (
-                          <pre className="text-xs text-muted whitespace-pre-wrap font-mono">
+                          <pre className="text-xs text-text-muted whitespace-pre-wrap font-mono">
                             {content.full_text}
                           </pre>
                         );
@@ -368,7 +368,7 @@ export default function ConversationMemoriesClient({
                 />
               </div>
 
-              <div className="rounded-2xl border border-border-panel bg-panel-hover p-4 text-xs text-muted space-y-1">
+              <div className="rounded-2xl border border-border-panel bg-panel-hover p-4 text-xs text-text-muted space-y-1">
                 <p>
                   <strong className="text-white">Entity ID:</strong> {entity.id}
                 </p>

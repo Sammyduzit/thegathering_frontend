@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { apiFetch, getErrorMessage } from "@/lib/client-api";
 import GlassPanel from "@/components/ui/GlassPanel";
-import { AuroraButton, AuroraLinkButton } from "@/components/ui/AuroraButton";
+import { AuroraButton } from "@/components/ui/AuroraButton";
 import { AuroraInput } from "@/components/ui/AuroraInput";
 import AlertStrip from "@/components/ui/AlertStrip";
 
@@ -11,6 +12,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -42,9 +44,12 @@ export default function RegisterPage() {
           <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full border border-border-aurora bg-surface-soft text-[0.65rem] uppercase tracking-[0.28em] text-text-soft">
             <span>New traveler</span>
           </div>
-          <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">Create an account</h1>
+          <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">
+            Create an account
+          </h1>
           <p className="text-sm text-text-subtle leading-relaxed">
-            Forge your presence in the clearing. Pick a name, share an email, and set a password the night can keep.
+            Forge your presence in the clearing. Pick a name, share an email,
+            and set a password the night can keep.
           </p>
         </header>
 
@@ -66,31 +71,44 @@ export default function RegisterPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
           />
-          <AuroraInput
-            label="Password"
-            id="register-password"
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Create a secret"
-          />
-          <AuroraButton type="submit" disabled={pending} className="w-full justify-center">
-            {pending ? "Registering..." : "Register"}
+
+          {/* Password field with show/hide toggle */}
+          <div className="relative">
+            <AuroraInput
+              label="Password"
+              id="register-password"
+              type={showPassword ? "text" : "password"}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Create a secret"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 bottom-[0.65rem] text-[0.65rem] uppercase tracking-[0.2em] text-text-subtle hover:text-text-primary transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+
+          <AuroraButton
+            type="submit"
+            disabled={pending}
+            className="w-full justify-center"
+          >
+            {pending ? "Registering…" : "Register"}
           </AuroraButton>
         </form>
 
         {error && <AlertStrip variant="danger">{error}</AlertStrip>}
 
         <p className="text-xs text-text-subtle text-center">
-          Already part of the circle?
-          <AuroraLinkButton
-            href="/login"
-            variant="ghost"
-            className="ml-2 text-[0.65rem] uppercase tracking-[0.32em]"
-          >
+          Already part of the circle?{" "}
+          <Link href="/login" className="link-aurora ml-1">
             Log in
-          </AuroraLinkButton>
+          </Link>
         </p>
       </GlassPanel>
     </div>

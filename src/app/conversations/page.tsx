@@ -23,6 +23,80 @@ type PageProps = {
   searchParams: Promise<{ message?: string }>;
 };
 
+function ConversationCard({ conv }: { conv: ConversationListItem }) {
+  const hasMessages = !!conv.latest_message_at;
+  const title = conv.room_name ?? `Conversation #${conv.id}`;
+  const timestamp = conv.latest_message_at ?? conv.created_at;
+  const participantDisplay =
+    conv.participants.length > 0
+      ? conv.participants.slice(0, 4).join(", ") +
+        (conv.participants.length > 4
+          ? ` +${conv.participants.length - 4}`
+          : "")
+      : null;
+
+  return (
+    <Link href={`/conversations/${conv.id}`} className="block group">
+      <GlassPanel className="px-5 py-4 md:px-6 md:py-5 rounded-2xl hover:border-border-panel-strong transition-all duration-200 hover:-translate-y-px">
+        <div className="flex items-start gap-4">
+          {/* Status dot */}
+          <div className="mt-[0.4rem] flex-shrink-0">
+            {hasMessages ? (
+              <span className="block w-2 h-2 rounded-full bg-ai shadow-[0_0_6px_var(--color-accent-ai)]" />
+            ) : (
+              <span className="block w-2 h-2 rounded-full bg-border-mist-strong" />
+            )}
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            {/* Row 1: title + type + timestamp */}
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-semibold tracking-[0.04em] text-white group-hover:text-ai transition-colors text-sm truncate">
+                  {title}
+                </span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full border border-border-mist bg-surface-soft text-[0.6rem] uppercase tracking-[0.2em] text-text-soft flex-shrink-0">
+                  {conv.type}
+                </span>
+                {conv.room_id !== null && (
+                  <span className="hidden sm:inline text-[0.6rem] uppercase tracking-[0.2em] text-text-faint">
+                    Room #{conv.room_id}
+                  </span>
+                )}
+              </div>
+              <span className="text-[0.62rem] text-text-faint uppercase tracking-[0.2em] whitespace-nowrap flex-shrink-0 mt-0.5">
+                {formatDateTime(timestamp)}
+              </span>
+            </div>
+
+            {/* Row 2: participants */}
+            {participantDisplay && (
+              <div className="mt-1 text-xs text-text-subtle truncate">
+                {participantDisplay}
+                <span className="ml-2 text-text-faint">
+                  · {conv.participant_count} souls
+                </span>
+              </div>
+            )}
+
+            {/* Row 3: message preview */}
+            {conv.latest_message_preview ? (
+              <p className="mt-2 text-sm text-text-aurora opacity-80 italic truncate">
+                &ldquo;{conv.latest_message_preview}&rdquo;
+              </p>
+            ) : (
+              <p className="mt-2 text-xs text-text-faint uppercase tracking-[0.2em]">
+                No messages yet
+              </p>
+            )}
+          </div>
+        </div>
+      </GlassPanel>
+    </Link>
+  );
+}
+
 export default async function ConversationsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const message = params.message;
@@ -31,11 +105,17 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
   if (!ctx.authenticated) {
     return (
       <GlassPanel as="section" className="max-w-lg mx-auto px-7 py-10 text-center">
-        <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">Conversations</h1>
-        <p className="mt-4 text-muted leading-relaxed">
-          Please sign in to revisit the circles you&apos;ve sparked. Your dialogues wait where you left them.
+        <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">
+          Conversations
+        </h1>
+        <p className="mt-4 text-text-muted leading-relaxed">
+          Please sign in to revisit the circles you&apos;ve sparked. Your
+          dialogues wait where you left them.
         </p>
-        <AuroraLinkButton href="/login" className="mt-6 mx-auto uppercase tracking-[0.3em] text-xs">
+        <AuroraLinkButton
+          href="/login"
+          className="mt-6 mx-auto uppercase tracking-[0.3em] text-xs"
+        >
           Sign In
         </AuroraLinkButton>
       </GlassPanel>
@@ -50,8 +130,15 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
   if (conversationsResponse.status === 401) {
     return (
       <GlassPanel as="section" className="max-w-lg mx-auto px-7 py-10 text-center">
-        <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">Conversations</h1>
-        <p className="mt-4 text-xs uppercase tracking-[0.32em] text-text-rose">Session expired. Please sign in again.</p>
+        <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">
+          Conversations
+        </h1>
+        <p className="mt-6 text-[0.7rem] uppercase tracking-[0.28em] text-text-rose">
+          Session expired — please sign in again.
+        </p>
+        <AuroraLinkButton href="/login" className="mt-6 mx-auto text-xs uppercase tracking-[0.3em]">
+          Sign In
+        </AuroraLinkButton>
       </GlassPanel>
     );
   }
@@ -59,10 +146,15 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
   if (!conversationsResponse.ok) {
     return (
       <GlassPanel as="section" className="max-w-lg mx-auto px-7 py-10 text-center">
-        <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">Conversations</h1>
-        <p className="mt-4 text-xs uppercase tracking-[0.32em] text-text-rose">
-          Failed to load conversations (status {conversationsResponse.status}).
-        </p>
+        <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">
+          Conversations
+        </h1>
+        <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border-rose bg-rose-veil">
+          <span className="w-1.5 h-1.5 rounded-full bg-text-rose" />
+          <span className="text-[0.65rem] uppercase tracking-[0.24em] text-text-rose">
+            Failed to load conversations
+          </span>
+        </div>
       </GlassPanel>
     );
   }
@@ -70,98 +162,52 @@ export default async function ConversationsPage({ searchParams }: PageProps) {
   const conversations: ConversationListItem[] = await conversationsResponse.json();
 
   return (
-    <section className="max-w-6xl mx-auto">
+    <section className="max-w-4xl mx-auto">
       {message && <ConversationAlert message={message} />}
 
-      <GlassPanel className="px-7 py-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+      {/* Header */}
+      <GlassPanel className="px-7 py-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
         <div>
-          <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">Conversations</h1>
-          <p className="mt-3 text-muted leading-relaxed">Overview of your active circles and private exchanges.</p>
+          <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">
+            Conversations
+          </h1>
+          <p className="mt-2 text-text-muted leading-relaxed text-sm">
+            Your active circles and private exchanges.
+          </p>
         </div>
         {currentRoomId ? (
           <AuroraLinkButton
             href={`/rooms/${currentRoomId}?create=group`}
             variant="ghost"
-            className="text-[0.65rem]"
+            className="text-[0.65rem] flex-shrink-0"
           >
-            Create conversation
+            New conversation
           </AuroraLinkButton>
         ) : (
-          <span className="text-xs uppercase tracking-[0.32em] text-muted">
-            Join a room to create conversations
+          <span className="text-xs uppercase tracking-[0.32em] text-text-faint">
+            Join a room first
           </span>
         )}
       </GlassPanel>
 
-      <GlassPanel className="mt-8 rounded-3xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm text-muted">
-            <thead className="bg-panel-hover text-[0.65rem] uppercase tracking-[0.28em] text-text-soft">
-              <tr>
-                <th className="px-5 py-4 text-left font-semibold">Conversation</th>
-                <th className="px-5 py-4 text-left font-semibold">Participants</th>
-                <th className="px-5 py-4 text-left font-semibold">Latest activity</th>
-                <th className="px-5 py-4 text-left font-semibold">Created</th>
-              </tr>
-            </thead>
-            <tbody>
-              {conversations.map((conv) => (
-                <tr
-                  key={conv.id}
-                  className="border-t border-border-panel hover:bg-surface-deep transition-colors group"
-                >
-                  <td className="px-5 py-4 align-top">
-                    <Link href={`/conversations/${conv.id}`} className="block">
-                      <div className="font-medium text-white group-hover:text-text-aurora transition-colors">
-                        {conv.room_name ? conv.room_name : `Conversation #${conv.id}`}
-                      </div>
-                      <div className="mt-1 text-[0.7rem] uppercase tracking-[0.28em] text-text-soft">
-                        {conv.type}
-                        {conv.room_id !== null && <span className="ml-2">· Room #{conv.room_id}</span>}
-                        <span className="ml-2">· {conv.participant_count} souls</span>
-                      </div>
-                    </Link>
-                  </td>
-                  <td className="px-5 py-4 align-top text-sm text-muted">
-                    <Link href={`/conversations/${conv.id}`} className="block">
-                      {conv.participants.length > 0 ? conv.participants.join(", ") : "—"}
-                    </Link>
-                  </td>
-                  <td className="px-5 py-4 align-top text-xs text-muted">
-                    <Link href={`/conversations/${conv.id}`} className="block">
-                      {conv.latest_message_preview && (
-                        <span className="block text-text-aurora italic">
-                          &ldquo;{conv.latest_message_preview}&rdquo;
-                        </span>
-                      )}
-                      <span className="block mt-1 text-text-subtle">
-                        {conv.latest_message_at
-                          ? formatDateTime(conv.latest_message_at)
-                          : "No messages yet."}
-                      </span>
-                    </Link>
-                  </td>
-                  <td className="px-5 py-4 align-top text-xs text-muted">
-                    <Link href={`/conversations/${conv.id}`} className="block">
-                      {formatDateTime(conv.created_at)}
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-              {conversations.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={4}
-                    className="px-5 py-8 text-center text-sm text-text-soft uppercase tracking-[0.28em]"
-                  >
-                    No conversations available.
-                  </td>
-                </tr>
-              )}
-              </tbody>
-            </table>
+      {/* Inbox list */}
+      {conversations.length > 0 ? (
+        <div className="mt-6 space-y-3">
+          {conversations.map((conv) => (
+            <ConversationCard key={conv.id} conv={conv} />
+          ))}
         </div>
-      </GlassPanel>
+      ) : (
+        <GlassPanel className="mt-6 py-16 text-center rounded-2xl">
+          <div className="text-3xl text-text-faint mb-4">◎</div>
+          <p className="text-sm uppercase tracking-[0.32em] text-text-subtle">
+            No conversations yet
+          </p>
+          <p className="mt-2 text-xs text-text-faint">
+            Join a room to start a conversation
+          </p>
+        </GlassPanel>
+      )}
     </section>
   );
 }

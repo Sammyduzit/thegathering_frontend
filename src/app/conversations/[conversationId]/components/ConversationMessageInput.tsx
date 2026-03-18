@@ -51,7 +51,7 @@ export function ConversationMessageInput({
           </div>
         </div>
       ) : (
-        <p className="mt-3 text-sm text-muted">
+        <p className="mt-3 text-sm text-text-muted">
           You do not have permission to send messages in this conversation.
         </p>
       )}

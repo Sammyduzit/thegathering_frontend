@@ -121,11 +121,11 @@ export default function MemoryDetailClient({ initialMemory }: Props) {
 
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs uppercase tracking-[0.32em] text-muted">Memory #{memory.id}</p>
+          <p className="text-xs uppercase tracking-[0.32em] text-text-muted">Memory #{memory.id}</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-[0.08em] text-white">
             {memory.summary || "(no summary)"}
           </h1>
-          <p className="mt-2 text-sm text-muted">
+          <p className="mt-2 text-sm text-text-muted">
             Created {formatDateTime(memory.created_at)} ·{" "}
             {memory.last_accessed ? `Last accessed ${formatDateTime(memory.last_accessed)}` : "Never accessed"}
           </p>
@@ -140,11 +140,11 @@ export default function MemoryDetailClient({ initialMemory }: Props) {
 
       <div className="grid gap-4 rounded-3xl border border-border-panel bg-surface-deep p-4 md:grid-cols-2">
         <div>
-          <p className="text-xs uppercase tracking-[0.32em] text-muted">Entity</p>
+          <p className="text-xs uppercase tracking-[0.32em] text-text-muted">Entity</p>
           <p className="mt-1 text-base text-white">{memory.entity_id}</p>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-[0.32em] text-muted">Scope</p>
+          <p className="text-xs uppercase tracking-[0.32em] text-text-muted">Scope</p>
           <p className="mt-1 text-base text-white">
             {memory.conversation_id !== null
               ? `Conversation ${memory.conversation_id}`
@@ -154,30 +154,30 @@ export default function MemoryDetailClient({ initialMemory }: Props) {
           </p>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-[0.32em] text-muted">Importance</p>
+          <p className="text-xs uppercase tracking-[0.32em] text-text-muted">Importance</p>
           <p className="mt-1 text-base text-white">{memory.importance_score.toFixed(1)}</p>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-[0.32em] text-muted">Keywords</p>
+          <p className="text-xs uppercase tracking-[0.32em] text-text-muted">Keywords</p>
           <p className="mt-1 text-base text-white">{memory.keywords.length ? memory.keywords.join(", ") : "—"}</p>
         </div>
       </div>
 
       <div className="rounded-3xl border border-border-panel bg-surface-deep p-4">
-        <p className="text-xs uppercase tracking-[0.32em] text-muted">Memory content</p>
+        <p className="text-xs uppercase tracking-[0.32em] text-text-muted">Memory content</p>
         <pre className="mt-2 overflow-x-auto rounded-2xl border border-border-panel bg-[#05070f] p-4 text-sm text-white">
           {renderedContent}
         </pre>
       </div>
 
       <div className="rounded-3xl border border-border-panel bg-surface-deep p-4">
-        <p className="text-xs uppercase tracking-[0.32em] text-muted">Metadata</p>
+        <p className="text-xs uppercase tracking-[0.32em] text-text-muted">Metadata</p>
         {renderedMetadata ? (
           <pre className="mt-2 overflow-x-auto rounded-2xl border border-border-panel bg-[#05070f] p-4 text-sm text-white">
             {renderedMetadata}
           </pre>
         ) : (
-          <p className="mt-2 text-sm text-muted">No metadata provided.</p>
+          <p className="mt-2 text-sm text-text-muted">No metadata provided.</p>
         )}
       </div>
 

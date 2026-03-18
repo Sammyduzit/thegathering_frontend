@@ -41,7 +41,7 @@ export function RoomHeader({
         <div className="flex-1 min-w-[260px] space-y-5">
           <div>
             <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">{room.name}</h1>
-            {room.description && <p className="mt-3 text-muted leading-relaxed">{room.description}</p>}
+            {room.description && <p className="mt-3 text-text-muted leading-relaxed">{room.description}</p>}
           </div>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <InfoTile title="Status" value={room.is_active ? "Open clearing" : "Closed"} />

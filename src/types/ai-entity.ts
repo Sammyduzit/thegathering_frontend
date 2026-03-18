@@ -40,6 +40,7 @@ export type AIEntityResponse = {
   conversation_response_strategy: ConversationResponseStrategy;
   response_probability: number | null; // 0.0-1.0, nur relevant bei room_probabilistic
   cooldown_seconds: number | null; // 0-3600 oder null
+  agent_mode_enabled: boolean;
   config: Record<string, unknown> | null;
   avatar_url: string | null; // Auto-generated (DiceBear "bottts") or custom
   is_active: boolean;
@@ -65,6 +66,7 @@ export type AIEntityCreate = {
   conversation_response_strategy?: ConversationResponseStrategy;
   response_probability?: number | null;
   cooldown_seconds?: number | null;
+  agent_mode_enabled?: boolean;
   config?: Record<string, unknown> | null;
   avatar_url?: string | null; // Optional override, else auto-generated
 };

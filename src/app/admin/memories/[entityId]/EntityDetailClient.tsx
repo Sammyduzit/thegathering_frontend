@@ -145,7 +145,7 @@ export default function EntityDetailClient({ entity, initialMemories }: Props) {
       {activeTab === "personality" && (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <p className="text-sm text-muted">
+            <p className="text-sm text-text-muted">
               Global knowledge base (books, documentation, etc.). No user-specific context.
             </p>
             <AuroraButton
@@ -266,7 +266,7 @@ export default function EntityDetailClient({ entity, initialMemories }: Props) {
                         if (content.full_text && typeof content.full_text === "string") {
                           const preview = content.full_text.substring(0, 150);
                           return (
-                            <p className="mt-2 text-xs text-muted">
+                            <p className="mt-2 text-xs text-text-muted">
                               {preview}{content.full_text.length > 150 ? "..." : ""}
                             </p>
                           );
@@ -292,7 +292,7 @@ export default function EntityDetailClient({ entity, initialMemories }: Props) {
       {/* Tab: Long-Term Conversations */}
       {activeTab === "conversations" && (
         <div className="space-y-6">
-          <p className="text-sm text-muted">
+          <p className="text-sm text-text-muted">
             Archived conversation memories. Click to view and manage memory chunks.
           </p>
 
@@ -321,7 +321,7 @@ export default function EntityDetailClient({ entity, initialMemories }: Props) {
                       <h3 className="text-base font-semibold text-white group-hover:text-gold transition-colors">
                         Conversation #{group.conversationId}
                       </h3>
-                      <p className="mt-1 text-sm text-muted truncate">
+                      <p className="mt-1 text-sm text-text-muted truncate">
                         {group.latestMemory.summary}
                       </p>
                       <p className="mt-2 text-xs text-text-faint">

@@ -73,7 +73,7 @@ export default async function RoomDetailServer({ roomId }: { roomId: string }) {
     return (
       <GlassPanel as="section" className="max-w-lg mx-auto px-7 py-10 text-center">
         <h1 className="text-3xl font-semibold tracking-[0.08em] text-white">Room</h1>
-        <p className="mt-4 text-muted leading-relaxed">
+        <p className="mt-4 text-text-muted leading-relaxed">
           Please sign in to view room details and join the gathering.
         </p>
         <AuroraLinkButton href="/login" className="mt-6 mx-auto uppercase tracking-[0.3em] text-xs">

@@ -205,10 +205,6 @@
     box-shadow: inset 0 0 12px rgba(124, 241, 255, 0.12), 0 0 18px rgba(124, 241, 255, 0.18);
   }
 
-  .text-muted {
-    color: var(--color-text-muted);
-  }
-
   .link-aurora {
     position: relative;
     color: var(--color-text-primary);
